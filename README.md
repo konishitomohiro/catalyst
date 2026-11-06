@@ -1,57 +1,34 @@
 # catalyst
 
-多職種間の「前提」を埋めるWebアプリ（Googleハッカソン 2026年11月 発表用）。
-何を作るか・決めたことは [`例/Docs/`](例/Docs/README.md) にある。
+**医療の多職種間で、「一方は分かっているが、もう一方は分かっていない前提」をAIが予測し、伝える前に埋めるWebアプリ**です。
+Googleハッカソン（発表日：2026年11月10日）のために作っています。
 
-## 技術構成
+例：医師が「チューブを2本持ってきてください」と入力すると、AIが「薬剤師さんは、なぜ2本なのか分からないかもしれません。理由を書き足しますか？」と知らせます。
 
-| 用途         | 使うもの                                        |
-| ------------ | ----------------------------------------------- |
-| 画面とAPI    | Next.js 16（App Router）+ TypeScript            |
-| AI           | Gemini API（`@google/genai`）                   |
-| AI出力の検査 | zod                                             |
-| テスト       | Vitest                                          |
-| lint・整形   | ESLint・Prettier                                |
-| デプロイ     | Cloud Run（Dockerfile、`output: "standalone"`） |
-| CI           | GitHub Actions（`.github/workflows/ci.yml`）    |
+## はじめて見る人へ
 
-## はじめかた
+コードを読まなくても、次の文書を読めば全体が分かります。
 
-Node.js 22 以上が必要（`.nvmrc`）。
+| 知りたいこと                 | 読む文書                                  |
+| ---------------------------- | ----------------------------------------- |
+| 何のために、誰のために作るか | [方向](例/Docs/1_方向.md)                 |
+| 今できること・作らないこと   | [今できること](例/Docs/2_今できること.md) |
+| どういう仕組みで動くか       | [仕組み](例/Docs/3_仕組み.md)             |
+| 見た目・画面                 | [デザイン](例/Docs/4_デザイン.md)         |
+| これからやること             | [次にやること](例/Docs/5_次にやること.md) |
+| 見つかった不具合             | [不具合](例/Docs/6_不具合.md)             |
+| AIの答えをどう確かめるか     | [テスト](例/Docs/7_テスト.md)             |
 
-```bash
-npm install
-cp .env.example .env.local   # GEMINI_API_KEY と GEMINI_MODEL を入れる
-npm run dev                  # http://localhost:3000
-```
+## フォルダの見かた
 
-## コマンド
+| フォルダ               | 中身                                   | 誰が見るか                   |
+| ---------------------- | -------------------------------------- | ---------------------------- |
+| `例/Docs/`             | 決めたことをまとめた文書（ここが正本） | 全員                         |
+| `app/`                 | アプリのコードと設定                   | 開発する人・AI               |
+| `.github/`・`.vscode/` | 自動チェックやエディタの設定           | 開発する人（触らなくてよい） |
 
-| コマンド         | 内容                                                 |
-| ---------------- | ---------------------------------------------------- |
-| `npm run dev`    | 開発サーバー                                         |
-| `npm run check`  | lint・型チェック・テスト・整形チェックをまとめて実行 |
-| `npm test`       | テストだけ（`npm run test:watch` で監視）            |
-| `npm run format` | 整形                                                 |
-| `npm run build`  | 本番ビルド                                           |
+`AGENTS.md`・`CLAUDE.md` は、開発を手伝うAIが最初に読む案内です。
 
-## Cloud Run へのデプロイ
+## 開発する人へ
 
-```bash
-gcloud run deploy catalyst --source . --region asia-northeast1 \
-  --set-env-vars GEMINI_MODEL=gemini-2.5-flash \
-  --set-secrets GEMINI_API_KEY=gemini-api-key:latest
-```
-
-API キーは Secret Manager に `gemini-api-key` として入れておく。
-
-## フォルダ
-
-```
-src/app/              画面とAPI
-src/lib/viewpoints.ts 観点リスト（コードで固定）
-src/lib/prediction.ts AIの出力の検査（形式・観点・件数）
-src/lib/gemini.ts     Gemini クライアント
-tests/cases.json      AI評価テストの入力10件
-例/Docs/              決めたこと（正本）
-```
+アプリの動かし方は [app/README.md](app/README.md) にあります。
