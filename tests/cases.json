@@ -1,0 +1,75 @@
+{
+  "_note": "AI評価テストの入力10件（例/Docs/7_テスト.md 3章）。mustInclude はどれか1つ以上が必ず出る観点、mustExclude は出てはいけない観点。",
+  "cases": [
+    {
+      "no": 1,
+      "recipient": "pharmacist",
+      "input": "チューブを2本持ってきてください",
+      "mustInclude": ["quantity_reason"],
+      "mustExclude": []
+    },
+    {
+      "no": 2,
+      "recipient": "pharmacist",
+      "input": "患者Aさんの胃ろう交換のため、チューブ（14Fr）を2本持参してください。1本は予備です。",
+      "mustInclude": [],
+      "mustExclude": ["quantity_reason"]
+    },
+    {
+      "no": 3,
+      "recipient": "pharmacist",
+      "input": "〇〇軟膏を処方しておきます",
+      "mustInclude": ["duration_frequency", "patient_condition"],
+      "mustExclude": []
+    },
+    {
+      "no": 4,
+      "recipient": "pharmacist",
+      "input": "念のため痛み止めを多めに出しておいて",
+      "mustInclude": ["shortage_surplus", "quantity_reason"],
+      "mustExclude": []
+    },
+    {
+      "no": 5,
+      "recipient": "pharmacist",
+      "input": "カテーテルを交換します。次回訪問時にお願いします。",
+      "mustInclude": ["purpose", "patient_condition"],
+      "mustExclude": []
+    },
+    {
+      "no": 6,
+      "recipient": "patient",
+      "input": "NSAIDsを毎食後に服用してください",
+      "mustInclude": ["jargon"],
+      "mustExclude": []
+    },
+    {
+      "no": 7,
+      "recipient": "patient",
+      "input": "熱や痛みを抑えるお薬（解熱鎮痛薬）を毎食後1錠飲んでください",
+      "mustInclude": [],
+      "mustExclude": ["jargon"]
+    },
+    {
+      "no": 8,
+      "recipient": "patient",
+      "input": "この薬を飲んでいる間はグレープフルーツを食べないでください",
+      "mustInclude": ["dont"],
+      "mustExclude": []
+    },
+    {
+      "no": 9,
+      "recipient": "patient",
+      "input": "症状が出たときだけ頓服で使ってください",
+      "mustInclude": ["when_how_much"],
+      "mustExclude": []
+    },
+    {
+      "no": 10,
+      "recipient": "patient",
+      "input": "夜間に容態が急変した場合は連絡してください",
+      "mustInclude": ["contact"],
+      "mustExclude": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+/* デザイン（例/Docs/4_デザイン.md）が決まるまでは最小限 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 2rem;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+}
