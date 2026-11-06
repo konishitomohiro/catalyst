@@ -10,7 +10,7 @@ const run = (...actions: SessionAction[]): SessionState =>
   actions.reduce(sessionReducer, initialSession);
 const detected = (...terms: string[]): SessionAction => ({
   type: "detected",
-  terms,
+  terms: terms.map((term) => ({ term })),
 });
 const no = (key: string): SessionAction => ({
   type: "answer",
@@ -83,5 +83,46 @@ describe("質問リストのチェック", () => {
   it("チェック済みの項目も消さない", () => {
     const s = run(...base, toggle("a"), toggle("b"), toggle("c"));
     expect(s.list).toHaveLength(3);
+  });
+});
+
+describe("取り消す", () => {
+  it("「いいえ」を取り消すと、リストから外れて「分かりますか？」の先頭に戻る", () => {
+    const s = run(detected("a", "b"), no("a"), { type: "undo" });
+    expect(s.list).toEqual([]);
+    expect(s.pending.map((p) => p.term)).toEqual(["a", "b"]);
+    expect(s.lastAnswer).toBeNull();
+  });
+
+  it("「はい」を取り消すと、また聞かれるようになる", () => {
+    const s = run(detected("a"), yes("a"), { type: "undo" });
+    expect(s.understood).toEqual([]);
+    expect(s.pending.map((p) => p.term)).toEqual(["a"]);
+  });
+
+  it("時間が過ぎたら取り消せない", () => {
+    const s = run(
+      detected("a"),
+      no("a"),
+      { type: "undoExpired" },
+      {
+        type: "undo",
+      },
+    );
+    expect(order(s)).toEqual(["・a"]);
+  });
+
+  it("取り消せるのは直前の1件だけ", () => {
+    const s = run(detected("a", "b"), no("a"), no("b"), { type: "undo" });
+    expect(order(s)).toEqual(["・a"]);
+    expect(s.pending.map((p) => p.term)).toEqual(["b"]);
+  });
+
+  it("読みも一緒に持ち回る", () => {
+    const s = run(
+      { type: "detected", terms: [{ term: "褥瘡", reading: "じょくそう" }] },
+      no("褥瘡"),
+    );
+    expect(s.list[0]).toMatchObject({ term: "褥瘡", reading: "じょくそう" });
   });
 });

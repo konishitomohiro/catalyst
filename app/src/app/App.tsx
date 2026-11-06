@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ROLES, type Role } from "@/lib/roles";
+import { ROLE_READING, ROLES, type Role } from "@/lib/roles";
+import { Furi } from "./Furi";
 import { Session } from "./Session";
 import styles from "./app.module.css";
 
@@ -14,6 +15,7 @@ export function App() {
   return <Home onStart={setRoles} />;
 }
 
+/** ホーム：だれとだれが話すかを選ぶ */
 function Home({
   onStart,
 }: {
@@ -23,14 +25,18 @@ function Home({
   const [recipient, setRecipient] = useState<Role>("患者");
   return (
     <main className={styles.home}>
-      <h1>catalyst</h1>
-      <p className={styles.muted}>
-        会話の中の「前提が必要な言葉」を見つけて、聞き手が話し手に質問しやすくします。
-        この端末は聞き手が持ちます。
-      </p>
-      <RolePicker label="話す人" value={sender} onChange={setSender} />
+      <h1 className={styles.title}>
+        <Furi text="だれと だれが {話|はな}しますか" />
+      </h1>
       <RolePicker
-        label="聞く人（この端末を持つ人）"
+        name="sender"
+        label="{話|はな}す{人|ひと}"
+        value={sender}
+        onChange={setSender}
+      />
+      <RolePicker
+        name="recipient"
+        label="{聞|き}く{人|ひと}（この{端末|たんまつ}を{持|も}つ{人|ひと}）"
         value={recipient}
         onChange={setRecipient}
       />
@@ -38,15 +44,14 @@ function Home({
         className={styles.primary}
         onClick={() => onStart({ sender, recipient })}
       >
-        はじめる
+        <Furi text="はじめる" />
       </button>
       <p className={styles.note}>
-        試作です。架空の会話で試してください。話した内容は、文字起こしのためにブラウザの音声認識へ、言葉を見つけるために
-        AI（Gemini）へ送られます。
+        <Furi text="{試作|しさく}です。{話|はな}した{内容|ないよう}は、{文字|もじ}にするためと{言葉|ことば}を{見|み}つけるために、{外|そと}のサービスに{送|おく}られます。{架空|かくう}の{会話|かいわ}で{試|ため}せます。" />
       </p>
       <p className={styles.note}>
         <Link href="/prototype/transcribe">
-          試作：文字起こしの精度を確かめる
+          <Furi text="{文字起|もじお}こしの{精度|せいど}を{確|たし}かめる（{開発用|かいはつよう}）" />
         </Link>
       </p>
     </main>
@@ -54,28 +59,40 @@ function Home({
 }
 
 function RolePicker({
+  name,
   label,
   value,
   onChange,
 }: {
+  name: string;
   label: string;
   value: Role;
   onChange: (r: Role) => void;
 }) {
   return (
     <fieldset className={styles.roles}>
-      <legend>{label}</legend>
-      {ROLES.map((r) => (
-        <label key={r} className={r === value ? styles.roleOn : styles.role}>
-          <input
-            type="radio"
-            name={label}
-            checked={r === value}
-            onChange={() => onChange(r)}
-          />
-          {r}
-        </label>
-      ))}
+      <legend>
+        <Furi text={label} />
+      </legend>
+      <div className={styles.chips}>
+        {ROLES.map((r) => (
+          <label key={r} className={r === value ? styles.chipOn : styles.chip}>
+            <input
+              type="radio"
+              name={name}
+              checked={r === value}
+              onChange={() => onChange(r)}
+            />
+            <span aria-hidden className={styles.chipMark}>
+              {r === value ? "✓" : ""}
+            </span>
+            <ruby>
+              {r}
+              <rt>{ROLE_READING[r]}</rt>
+            </ruby>
+          </label>
+        ))}
+      </div>
     </fieldset>
   );
 }

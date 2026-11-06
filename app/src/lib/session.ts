@@ -1,22 +1,31 @@
 // 対面の流れの状態（例/Docs/1_方向.md 7章）。選択と判断はすべてここ（コード）でする。
+import type { DetectedTerm } from "./detection";
 import { normalize } from "./transcriptCheck";
 
-export type ListItem = { key: string; term: string; checked: boolean };
+/** 「取り消す」を出しておく時間（例/Docs/4_デザイン.md） */
+export const UNDO_MS = 5000;
+
+export type Term = { key: string; term: string; reading?: string };
+export type ListItem = Term & { checked: boolean };
 
 export type SessionState = {
   /** 答えを待っている「分かりますか？」。古い順 */
-  pending: { key: string; term: string }[];
+  pending: Term[];
   /** 質問リスト。上ほど見えにくいので、チェック済みを上、未チェックを下に置く */
   list: ListItem[];
   /** 「はい」と答えた語 */
   understood: string[];
   /** また出てきたので知らせる質問リストの項目（n は知らせるたびに増える） */
   highlight: { key: string; n: number } | null;
+  /** 直前の答え。UNDO_MS のあいだ取り消せる */
+  lastAnswer: { term: Term; understood: boolean; at: number } | null;
 };
 
 export type SessionAction =
-  | { type: "detected"; terms: string[] }
-  | { type: "answer"; key: string; understood: boolean }
+  | { type: "detected"; terms: DetectedTerm[] }
+  | { type: "answer"; key: string; understood: boolean; at?: number }
+  | { type: "undo" }
+  | { type: "undoExpired" }
   | { type: "toggle"; key: string };
 
 export const initialSession: SessionState = {
@@ -24,6 +33,7 @@ export const initialSession: SessionState = {
   list: [],
   understood: [],
   highlight: null,
+  lastAnswer: null,
 };
 
 export const termKey = (term: string) => normalize(term);
@@ -42,7 +52,7 @@ export function sessionReducer(
   switch (action.type) {
     case "detected": {
       let next = state;
-      for (const term of action.terms) {
+      for (const { term, reading } of action.terms) {
         const key = termKey(term);
         if (!key) continue;
         // 一度答えた語・答え待ちの語は聞き直さない
@@ -56,7 +66,7 @@ export function sessionReducer(
           };
           continue;
         }
-        next = { ...next, pending: [...next.pending, { key, term }] };
+        next = { ...next, pending: [...next.pending, { key, term, reading }] };
       }
       return next;
     }
@@ -64,16 +74,42 @@ export function sessionReducer(
       const p = state.pending.find((x) => x.key === action.key);
       if (!p) return state;
       const pending = state.pending.filter((x) => x.key !== action.key);
+      const lastAnswer = {
+        term: p,
+        understood: action.understood,
+        at: action.at ?? 0,
+      };
       if (action.understood) {
-        return { ...state, pending, understood: [...state.understood, p.key] };
+        return {
+          ...state,
+          pending,
+          lastAnswer,
+          understood: [...state.understood, p.key],
+        };
       }
       // 「いいえ」→ 質問リストのいちばん下（いちばん見えやすい位置）に足す
       return {
         ...state,
         pending,
-        list: [...state.list, { key: p.key, term: p.term, checked: false }],
+        lastAnswer,
+        list: [...state.list, { ...p, checked: false }],
       };
     }
+    case "undo": {
+      const last = state.lastAnswer;
+      if (!last) return state;
+      const { key } = last.term;
+      // 答える前に戻す：「分かりますか？」のいちばん前に戻し、答えの記録を消す
+      return {
+        ...state,
+        lastAnswer: null,
+        pending: [last.term, ...state.pending],
+        understood: state.understood.filter((k) => k !== key),
+        list: state.list.filter((x) => x.key !== key),
+      };
+    }
+    case "undoExpired":
+      return state.lastAnswer ? { ...state, lastAnswer: null } : state;
     case "toggle": {
       const item = state.list.find((x) => x.key === action.key);
       if (!item) return state;

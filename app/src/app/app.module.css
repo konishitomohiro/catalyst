@@ -1,152 +1,199 @@
-/* デザイン（例/Docs/4_デザイン.md）が決まるまでの仮の見た目 */
+/* 部品表（例/Docs/4_デザイン.md）。値は globals.css の変数からだけ選ぶ */
 
-.home {
-  max-width: 32rem;
-  margin: 0 auto;
+/* ---- 主ボタン（1画面に1つ）・副操作 ---- */
+
+.primary {
+  width: 100%;
+  min-height: 3.25rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--blue);
+  color: #fff;
+  font-weight: bold;
 }
 
-.muted {
-  color: #666;
-  font-size: 0.9rem;
+.primary:disabled {
+  background: var(--line);
+  color: var(--muted);
+}
+
+.textButton {
+  min-height: var(--tap);
+  padding: 0 0.25rem;
+  border: none;
+  background: none;
+  color: var(--blue);
+  font-size: 1rem;
 }
 
 .note {
-  color: #888;
-  font-size: 0.8rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin: var(--gap) 0 0;
+}
+
+/* ---- ホーム ---- */
+
+.home {
+  max-width: 37.5rem;
+  margin: 0 auto;
+  padding: var(--section) var(--side);
+}
+
+.title {
+  font-size: 1.5rem;
+  margin: 0 0 var(--section);
 }
 
 .roles {
   border: none;
   padding: 0;
-  margin: 1.25rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  margin: 0 0 var(--section);
 }
 
 .roles legend {
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  padding: 0;
+  margin-bottom: var(--gap);
 }
 
-.roles input {
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+}
+
+.chips input {
   position: absolute;
   opacity: 0;
+  pointer-events: none;
 }
 
-.role,
-.roleOn {
-  padding: 0.5rem 0.9rem;
+.chip,
+.chipOn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: var(--tap);
+  padding: 0.25rem 1rem 0.25rem 0.75rem;
   border-radius: 999px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border);
   cursor: pointer;
 }
 
-.roleOn {
-  background: #1a73e8;
-  border-color: #1a73e8;
-  color: #fff;
+.chipOn {
+  border: 2px solid var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: bold;
 }
 
-.primary,
-.stop {
-  font-size: 1rem;
-  padding: 0.7rem 1.2rem;
-  border-radius: 0.6rem;
-  border: none;
-  color: #fff;
-  background: #1a73e8;
+.chip:has(input:focus-visible),
+.chipOn:has(input:focus-visible) {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
 }
 
-.primary:disabled {
-  background: #aaa;
+.chipMark {
+  width: 1em;
+  text-align: center;
 }
 
-.stop {
-  background: #d93025;
-}
-
-.link {
-  background: none;
-  border: none;
-  color: #1a73e8;
-  font-size: 0.85rem;
-  margin-left: auto;
-}
-
-.error {
-  color: #d93025;
-  font-size: 0.85rem;
-}
-
-/* ---- 会話画面 ---- */
+/* ---- 会話：白い紙 ---- */
 
 .screen {
   position: fixed;
   inset: 0;
   display: flex;
   flex-direction: column;
-  background: #111;
+  background: var(--dock);
 }
 
-.main {
+.paper {
   flex: 1;
   min-height: 0;
+  width: 100%;
+  max-width: 37.5rem;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--bg);
   border-radius: 0 0 1.5rem 1.5rem;
   overflow: hidden;
 }
 
-/* 質問リスト：画面上部の一部。上ほど見えにくいので、下（未チェック）が見える位置に置く */
+/* 質問リスト：画面上部の一部 */
 .listArea {
-  height: 38%;
-  border-bottom: 1px solid #eee;
-  background: #fafafa;
+  height: 40%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  border-bottom: 1px solid var(--line);
 }
 
 .list {
   min-height: 0;
+  overflow-y: auto;
   list-style: none;
   margin: 0;
-  padding: 0.5rem 1rem;
-  overflow-y: auto;
+  padding: 0 var(--side);
 }
 
-.list li {
-  padding: 0.4rem 0;
-  border-bottom: 1px solid #eee;
-  font-size: 1.1rem;
-}
-
-.list label {
+/* 行全体を押せる（親指が届きにくい上部でも押しやすく） */
+.row {
   display: flex;
-  gap: 0.6rem;
   align-items: center;
+  gap: var(--gap);
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.25rem 0;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  color: var(--text);
 }
 
-.list input {
-  width: 1.3rem;
-  height: 1.3rem;
+.rowTerm {
+  font-size: 1.25rem;
+  font-weight: bold;
 }
 
-.checked span {
-  color: #aaa;
+/* 状態は形で示す：輪＝まだ聞いていない／塗りつぶし＝聞けた */
+.ring {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 2px solid var(--orange);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background var(--appear);
+}
+
+.rowDone .ring {
+  border-color: var(--blue);
+  background: var(--blue);
+}
+
+.rowDone .rowTerm {
+  color: var(--muted);
+  font-weight: normal;
   text-decoration: line-through;
 }
 
 .flash {
-  animation: flash 1.6s ease-out;
+  animation: flash 1.5s ease-out;
 }
 
 @keyframes flash {
   0%,
-  40% {
-    background: #fff3b0;
+  50% {
+    background: var(--orange-soft);
   }
   100% {
     background: transparent;
@@ -154,95 +201,198 @@
 }
 
 .empty {
-  color: #999;
-  font-size: 0.85rem;
-  padding: 0 1rem;
+  color: var(--muted);
+  font-size: 1rem;
+  margin: 0;
+  padding: var(--gap) var(--side);
 }
 
-.transcript {
+/* 会話の文字 */
+.talk {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  padding: var(--gap) var(--side);
+  color: var(--muted);
 }
 
-.transcript p {
-  margin: 0.3rem 0;
+.talk p {
+  margin: 0 0 0.25rem;
 }
 
-.rolesBar {
+.talkHead {
   display: flex;
-  color: #666;
-  font-size: 0.8rem;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
 }
 
 .interim {
-  color: #999;
+  opacity: 0.7;
 }
 
 .controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem 1rem;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: var(--gap) var(--side) var(--section);
 }
 
-/* ---- 画面下部の帯（分かりますか？） ---- */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+
+.liveDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--blue);
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--blue);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash,
+  .spinner {
+    animation: none;
+  }
+}
+
+/* ---- 画面下部の帯（アプリからの呼びかけはここだけ） ---- */
 
 .dock {
-  height: 8.5rem;
-  color: #fff;
-  padding: 0.6rem 0 0.9rem;
+  width: 100%;
+  max-width: 37.5rem;
+  margin: 0 auto;
+  min-height: 9.5rem;
+  padding: var(--gap) 0 var(--section);
+  color: var(--dock-text);
 }
 
-.dockIdle {
-  color: #777;
-  font-size: 0.85rem;
-  padding: 1.5rem 1rem;
+.dockIdle,
+.dockNote {
+  color: var(--dock-muted);
+  font-size: 0.875rem;
+  margin: 0 var(--side) var(--gap);
 }
 
-.dockCount {
-  font-size: 0.75rem;
-  color: #aaa;
-  padding: 0 1rem 0.4rem;
+.undo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin: 0 var(--side) var(--gap);
+  color: var(--dock-muted);
+  font-size: 0.875rem;
+  animation: appear var(--appear) ease-out;
+}
+
+.undoButton {
+  flex: none;
+  min-height: var(--tap);
+  padding: 0 0.75rem;
+  border: 1px solid var(--dock-muted);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--dock-text);
+  font-size: 0.875rem;
 }
 
 .cards {
   display: flex;
-  gap: 0.6rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-padding: 0 1rem;
-  padding: 0 1rem;
+  scrollbar-width: none;
 }
 
 .card {
-  flex: 0 0 calc(100% - 2.5rem);
-  scroll-snap-align: start;
-  background: #222;
-  border-radius: 0.8rem;
-  padding: 0.7rem 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  padding: 0 var(--side);
+  animation: appear var(--appear) ease-out;
 }
 
-.cardQ {
+.question {
+  margin: 0 0 var(--gap);
+  font-size: 1.25rem;
+}
+
+.questionTerm {
+  font-weight: bold;
+}
+
+/* 「はい」と「いいえ」は離して置き、形でも区別する（枠だけ／塗りつぶし） */
+.answers {
+  display: flex;
+  gap: var(--section);
+}
+
+.yes,
+.no {
   flex: 1;
-  font-size: 1rem;
+  min-height: 3.25rem;
+  border-radius: var(--radius);
+  font-weight: bold;
 }
 
-.cardA {
+.yes {
+  border: 2px solid var(--dock-text);
+  background: none;
+  color: var(--dock-text);
+}
+
+.no {
+  border: 2px solid var(--dock-text);
+  background: var(--dock-text);
+  color: var(--dock);
+}
+
+.dots {
   display: flex;
-  gap: 0.4rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: var(--gap);
 }
 
-.cardA button {
-  font-size: 0.95rem;
-  padding: 0.5rem 0.8rem;
-  border-radius: 0.5rem;
-  border: 1px solid #555;
-  background: #333;
-  color: #fff;
+.dot,
+.dotOn {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--dock-card);
+  border: 1px solid var(--dock-muted);
+}
+
+.dotOn {
+  background: var(--dock-text);
+}
+
+.more {
+  font-size: 0.75rem;
+  color: var(--dock-muted);
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
 }
