@@ -304,6 +304,12 @@
   animation: appear var(--appear) ease-out;
 }
 
+.confirmButtons {
+  flex: none;
+  display: flex;
+  gap: var(--gap);
+}
+
 .undoButton {
   flex: none;
   min-height: var(--tap);

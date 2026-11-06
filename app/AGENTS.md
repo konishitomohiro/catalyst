@@ -6,7 +6,8 @@
 - コマンドはこの `app/` フォルダで実行する。
 - 作業後は `npm run check` が通ることを確かめる（lint・型・テスト・整形）。
 - 対面の流れの状態（分かりますか？・質問リスト）は `src/lib/session.ts`、AI出力の検査は `src/lib/detection.ts`、AIへの指示文は `src/lib/prompt.ts`。
-- 観点リスト `src/lib/viewpoints.ts` と `tests/cases.json` は、これまでの案（薬剤師・患者向け）で作ったもの。観点リストが決まったら直す。
+- AIへの問い合わせは `src/lib/detect.ts`、呼び出し回数の上限は `src/lib/rateLimit.ts`。AI評価テストは `tests/eval-cases.json` と `npm run eval`（本物の Gemini を呼ぶので費用がかかる。指示文・モデル・検査を変えたときに回す）。
+- 観点リスト `src/lib/viewpoints.ts` は、これまでの案（薬剤師・患者向け）で作ったもの。今は使っていない。
 - リポジトリ直下は非エンジニアも見る。コードや設定ファイルは直下に置かず、この `app/` に置く。
 
 <!-- BEGIN:nextjs-agent-rules -->

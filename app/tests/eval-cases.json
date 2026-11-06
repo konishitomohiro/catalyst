@@ -1,0 +1,91 @@
+{
+  "_note": "AI評価テストのケース（案）。例/Docs/7_テスト.md。医療の例文は架空。中身は人が確かめて直す。mustInclude は組ごとに、組の中のどれか1つが見つかってほしい語。mustExclude は見つかってはいけない語。",
+  "cases": [
+    {
+      "id": "tube-2",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "チューブを2本持ってきてください",
+      "mustInclude": [["2本", "チューブ"]],
+      "mustExclude": [],
+      "note": "本数の理由がない（インタビューの場面）"
+    },
+    {
+      "id": "tube-2-explained",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "胃ろう交換のため、チューブ（14Fr）を2本持参してください。1本は予備です。",
+      "mustInclude": [],
+      "mustExclude": ["胃ろう", "14Fr", "2本"],
+      "note": "薬剤師なら分かる語で、本数の理由も書いてある"
+    },
+    {
+      "id": "nsaids",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "NSAIDsを毎食後に服用してください",
+      "mustInclude": [["NSAIDs"]],
+      "mustExclude": [],
+      "note": "患者には略語が分からない"
+    },
+    {
+      "id": "nsaids-explained",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "熱や痛みを抑えるお薬（解熱鎮痛薬）を毎食後1錠飲んでください",
+      "mustInclude": [],
+      "mustExclude": ["解熱鎮痛薬"],
+      "note": "文の中で言い換えてある"
+    },
+    {
+      "id": "tonpuku",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "症状が出たときだけ頓服で使ってください",
+      "mustInclude": [["頓服"]],
+      "mustExclude": []
+    },
+    {
+      "id": "grapefruit",
+      "sender": "薬剤師",
+      "recipient": "患者",
+      "utterance": "この薬を飲んでいる間はグレープフルーツを食べないでください",
+      "mustInclude": [],
+      "mustExclude": ["グレープフルーツ"],
+      "note": "日常の語は返さない"
+    },
+    {
+      "id": "kyuhen",
+      "sender": "看護師",
+      "recipient": "介護者",
+      "utterance": "夜間に容態が急変した場合は連絡してください",
+      "mustInclude": [["急変", "容態"]],
+      "mustExclude": ["夜間"]
+    },
+    {
+      "id": "jokuso",
+      "sender": "看護師",
+      "recipient": "介護者",
+      "utterance": "褥瘡の処置には、この軟膏を1日2回塗ってください",
+      "mustInclude": [["褥瘡"]],
+      "mustExclude": []
+    },
+    {
+      "id": "enge",
+      "sender": "医師",
+      "recipient": "介護者",
+      "utterance": "嚥下機能が落ちているので、汁物にはとろみをつけてください",
+      "mustInclude": [["嚥下"]],
+      "mustExclude": ["汁物"]
+    },
+    {
+      "id": "egfr-to-doctor",
+      "sender": "薬剤師",
+      "recipient": "医師",
+      "utterance": "eGFRが低いので、この薬は減量を提案します",
+      "mustInclude": [],
+      "mustExclude": ["eGFR"],
+      "note": "医師なら分かる語は返さない（受け手の職種で変わるか）"
+    }
+  ]
+}

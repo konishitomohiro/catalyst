@@ -31,13 +31,14 @@ Gemini は **Vertex AI 経由**で呼ぶ。ハッカソンで配られる Google
 
 ## コマンド
 
-| コマンド         | 内容                                                 |
-| ---------------- | ---------------------------------------------------- |
-| `npm run dev`    | 開発サーバー                                         |
-| `npm run check`  | lint・型チェック・テスト・整形チェックをまとめて実行 |
-| `npm test`       | テストだけ（`npm run test:watch` で監視）            |
-| `npm run format` | 整形                                                 |
-| `npm run build`  | 本番ビルド                                           |
+| コマンド         | 内容                                                                                    |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `npm run dev`    | 開発サーバー                                                                            |
+| `npm run check`  | lint・型チェック・テスト・整形チェックをまとめて実行                                    |
+| `npm test`       | テストだけ（`npm run test:watch` で監視）                                               |
+| `npm run format` | 整形                                                                                    |
+| `npm run build`  | 本番ビルド                                                                              |
+| `npm run eval`   | AI評価テスト（本物の Gemini を呼ぶ。費用がかかる。`.env.local` と gcloud の認証が要る） |
 
 ## Cloud Run へのデプロイ
 
@@ -70,10 +71,15 @@ gcloud run deploy catalyst --source app --region asia-northeast1 \
 ## フォルダ
 
 ```
-src/app/              画面とAPI
-src/lib/viewpoints.ts 観点リスト（コードで固定）
-src/lib/prediction.ts AIの出力の検査（形式・観点・件数）
-src/lib/gemini.ts     Gemini クライアント
-tests/cases.json      AI評価テストの入力10件
+src/app/              画面とAPI（ホーム・会話・/api/detect・文字起こしの試作）
+src/lib/session.ts    対面の流れの状態（分かりますか？・質問リスト・取り消す）
+src/lib/detect.ts     Gemini に前提が要りそうな言葉を探させる
+src/lib/detection.ts  AIの出力の検査（形式・発言にある語だけ・読み・件数）
+src/lib/prompt.ts     AIへの指示文
+src/lib/gemini.ts     Gemini クライアント（Vertex AI）
+src/lib/rateLimit.ts  呼び出し回数の上限
+src/lib/viewpoints.ts これまでの案の観点リスト（今は使っていない）
+src/eval/             AI評価テスト（npm run eval）
+tests/eval-cases.json AI評価テストのケース10件（案）
 public/               画像などの静的ファイル
 ```
