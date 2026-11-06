@@ -16,14 +16,18 @@
 
 ## はじめかた
 
-Node.js 22 以上が必要（`.nvmrc`）。
+Node.js 22 以上（`.nvmrc`）と、Google Cloud の CLI（`gcloud`）が必要。
 
 ```bash
 cd app
 npm install
-cp .env.example .env.local   # GEMINI_API_KEY と GEMINI_MODEL を入れる
+cp .env.example .env.local   # GOOGLE_CLOUD_PROJECT と GEMINI_MODEL を入れる
+gcloud auth application-default login   # Vertex AI を呼ぶための認証（API キーは使わない）
 npm run dev                  # http://localhost:3000
 ```
+
+Gemini は **Vertex AI 経由**で呼ぶ。ハッカソンで配られる Google Cloud クレジットは、Google AI Studio の API キーには使えないため。
+ログインしたアカウントに、そのプロジェクトで Vertex AI を使う権限（オーナー、または「Vertex AI ユーザー」）が要る。
 
 ## コマンド
 
@@ -37,15 +41,31 @@ npm run dev                  # http://localhost:3000
 
 ## Cloud Run へのデプロイ
 
-リポジトリ直下から：
+リポジトリ直下から。`PROJECT_ID` はクレジットを有効にしたプロジェクトの ID に置き換える。
+
+1回だけ（API を有効にし、Cloud Run 用のサービスアカウントに Vertex AI を使う権限を付ける）：
+
+```bash
+gcloud config set project PROJECT_ID
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com aiplatform.googleapis.com
+gcloud iam service-accounts create catalyst-run
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member=serviceAccount:catalyst-run@PROJECT_ID.iam.gserviceaccount.com \
+  --role=roles/aiplatform.user
+```
+
+デプロイ（毎回）：
 
 ```bash
 gcloud run deploy catalyst --source app --region asia-northeast1 \
-  --set-env-vars GEMINI_MODEL=gemini-2.5-flash \
-  --set-secrets GEMINI_API_KEY=gemini-api-key:latest
+  --service-account catalyst-run@PROJECT_ID.iam.gserviceaccount.com \
+  --set-env-vars GOOGLE_CLOUD_PROJECT=PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-2.5-flash \
+  --max-instances 2 --allow-unauthenticated
 ```
 
-API キーは Secret Manager に `gemini-api-key` として入れておく。
+- API キーは使わないので、Secret Manager は要らない。
+- `--max-instances 2` は費用事故の備え（例/Docs/9_直すこと.md #3）。予算アラートも別に設定する。
+- `--allow-unauthenticated` を付けると、URL を知っている人は誰でも使える。発表が終わったら止める。
 
 ## フォルダ
 
