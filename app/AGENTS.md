@@ -5,7 +5,8 @@
 
 - コマンドはこの `app/` フォルダで実行する。
 - 作業後は `npm run check` が通ることを確かめる（lint・型・テスト・整形）。
-- 観点リストは `src/lib/viewpoints.ts`、AI出力の検査は `src/lib/prediction.ts`、AI評価テストの入力は `tests/cases.json`。
+- 対面の流れの状態（分かりますか？・質問リスト）は `src/lib/session.ts`、AI出力の検査は `src/lib/detection.ts`、AIへの指示文は `src/lib/prompt.ts`。
+- 観点リスト `src/lib/viewpoints.ts` と `tests/cases.json` は、これまでの案（薬剤師・患者向け）で作ったもの。観点リストが決まったら直す。
 - リポジトリ直下は非エンジニアも見る。コードや設定ファイルは直下に置かず、この `app/` に置く。
 
 <!-- BEGIN:nextjs-agent-rules -->
