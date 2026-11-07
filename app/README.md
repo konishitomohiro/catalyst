@@ -107,6 +107,22 @@ gcloud projects get-iam-policy $PROJECT_ID --flatten='bindings[].members' --form
 
 一覧に、今のアカウントの `roles/owner` か `roles/aiplatform.user` がなければ、プロジェクトを作ったアカウントでログインし直すか、権限を付けてもらう。ログインし直すときは、`gcloud auth application-default login` も同じアカウントで行う。
 
+3. **アプリが使う認証（ADC）のアカウントが、`gcloud auth list` と同じか。** 別々にログインするので、食い違うことがある（2026年11月7日、ADC だけ大学のアカウントになっていて 403 になった）。次の結果の `"email"` が、上の一覧で権限のあるアカウントか確かめる。
+
+```bash
+curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=$(gcloud auth application-default print-access-token)" | grep email
+```
+
+違っていたら、ブラウザで権限のあるアカウントを選んでログインし直す。
+
+```bash
+gcloud auth application-default login
+```
+
+```bash
+gcloud auth application-default set-quota-project $PROJECT_ID
+```
+
 **`npm run eval` が「認証がありません」になる。** `gcloud auth application-default login` を実行する。
 
 **`npm run eval` が「モデルが見つかりません」になる。** `.env.local` の `GEMINI_MODEL` を、Vertex AI のモデル一覧にある名前にする。
