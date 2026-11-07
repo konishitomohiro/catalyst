@@ -402,3 +402,139 @@
     transform: translateY(0.5rem);
   }
 }
+
+/* ---- ホーム：使い方の選択 ---- */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.modes input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mode,
+.modeOn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: var(--tap);
+  padding: var(--gap) 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.modeOn {
+  border: 2px solid var(--blue);
+  background: var(--blue-soft);
+}
+
+.mode:has(input:focus-visible),
+.modeOn:has(input:focus-visible) {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.modeLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: bold;
+}
+
+.modeOn .modeLabel {
+  color: var(--blue);
+}
+
+.modeDesc {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* ---- 伝える前に確かめる ---- */
+
+.inlineConfirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: var(--gap);
+  margin: var(--gap) 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.fieldLabel {
+  display: block;
+  font-weight: bold;
+  margin: var(--section) 0 var(--gap);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--gap);
+  padding: var(--gap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.result {
+  margin-top: var(--section);
+  padding-top: var(--gap);
+  border-top: 1px solid var(--line);
+}
+
+.resultLead {
+  font-weight: bold;
+  margin: 0 0 var(--gap);
+}
+
+.preview {
+  margin: 0 0 var(--gap);
+  padding: var(--gap);
+  background: var(--bg);
+  border-left: 4px solid var(--line);
+}
+
+/* 見つかった場所の印：オレンジの下線（色だけで示さないよう、太い下線と面の両方） */
+.mark {
+  background: var(--orange-soft);
+  color: var(--text);
+  border-bottom: 3px solid var(--orange);
+  padding: 0 0.1em;
+}
+
+.points {
+  margin: 0 0 var(--gap);
+  padding-left: 1.5rem;
+}
+
+.points li {
+  margin-bottom: var(--gap);
+}
+
+.question {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: bold;
+}

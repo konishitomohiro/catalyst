@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import cases from "../../tests/eval-cases.json";
+import premiseCases from "../../tests/premise-cases.json";
 import { judge, sameTerm, type EvalCase } from "./evalJudge";
 import { ROLES } from "./roles";
 
@@ -58,6 +59,21 @@ describe("tests/eval-cases.json", () => {
       expect(ROLES).toContain(c.recipient);
       for (const e of [...c.mustInclude.flat(), ...c.mustExclude]) {
         expect(sameTerm(c.utterance, e), `${c.id}: ${e}`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("tests/premise-cases.json", () => {
+  it("形が正しく、期待する場所は文の中にある", () => {
+    const ids = new Set<string>();
+    for (const c of premiseCases.cases) {
+      expect(ids.has(c.id)).toBe(false);
+      ids.add(c.id);
+      expect(ROLES).toContain(c.sender);
+      expect(ROLES).toContain(c.recipient);
+      for (const e of [...c.mustQuote.flat(), ...c.mustNotQuote]) {
+        expect(sameTerm(c.message, e), `${c.id}: ${e}`).toBe(true);
       }
     }
   });
