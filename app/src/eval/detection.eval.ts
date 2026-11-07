@@ -10,10 +10,15 @@ import { detectTerms } from "@/lib/detect";
 import { judge, type EvalCase } from "@/lib/evalJudge";
 
 const all = cases.cases as EvalCase[];
+
+// 設定が足りないときは飛ばす（理由は vitest.eval.config.mts が表示する）
+const missing = ["GOOGLE_CLOUD_PROJECT", "GEMINI_MODEL"].filter(
+  (k) => !process.env[k],
+);
 const results: { id: string; pass: boolean; terms: string[]; why: string }[] =
   [];
 
-describe.skipIf(!process.env.GOOGLE_CLOUD_PROJECT)(
+describe.skipIf(missing.length > 0)(
   `AI評価テスト（モデル：${process.env.GEMINI_MODEL ?? "未設定"}）`,
   () => {
     it.each(all.map((c) => [c.id, c] as const))(
