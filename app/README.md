@@ -77,6 +77,38 @@ Gemini は **Vertex AI 経由**で呼ぶ。ハッカソンで配られる Google
 ログインしたアカウントに、そのプロジェクトで Vertex AI を使う権限（オーナー、または「Vertex AI ユーザー」）が要る。
 初めてのプロジェクトでは、先に下の「1回だけ」の手順で Vertex AI の API を有効にする。
 
+## うまくいかないとき
+
+**`npm run eval` が「権限がありません（403）」になる。** 次を順に確かめる。`$PROJECT_ID` は「はじめかた」の 2 で覚えさせたもの。
+
+1. Vertex AI の API が、そのプロジェクトで有効か。何も出なければ有効でない。
+
+```bash
+gcloud services list --enabled --project $PROJECT_ID --filter=aiplatform
+```
+
+有効でなければ、有効にする（数分かかることがある）。
+
+```bash
+gcloud services enable aiplatform.googleapis.com --project $PROJECT_ID
+```
+
+2. ログインしているアカウントと、そのアカウントの権限。`*` が付いているのが今のアカウント。
+
+```bash
+gcloud auth list
+```
+
+```bash
+gcloud projects get-iam-policy $PROJECT_ID --flatten=bindings[].members --format=table(bindings.role,bindings.members)
+```
+
+一覧に、今のアカウントの `roles/owner` か `roles/aiplatform.user` がなければ、プロジェクトを作ったアカウントでログインし直すか、権限を付けてもらう。ログインし直すときは、`gcloud auth application-default login` も同じアカウントで行う。
+
+**`npm run eval` が「認証がありません」になる。** `gcloud auth application-default login` を実行する。
+
+**`npm run eval` が「モデルが見つかりません」になる。** `.env.local` の `GEMINI_MODEL` を、Vertex AI のモデル一覧にある名前にする。
+
 ## コマンド
 
 | コマンド         | 内容                                                                                    |
