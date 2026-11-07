@@ -100,7 +100,7 @@ gcloud auth list
 ```
 
 ```bash
-gcloud projects get-iam-policy $PROJECT_ID --flatten=bindings[].members --format=table(bindings.role,bindings.members)
+gcloud projects get-iam-policy $PROJECT_ID --flatten='bindings[].members' --format='table(bindings.role,bindings.members)'
 ```
 
 一覧に、今のアカウントの `roles/owner` か `roles/aiplatform.user` がなければ、プロジェクトを作ったアカウントでログインし直すか、権限を付けてもらう。ログインし直すときは、`gcloud auth application-default login` も同じアカウントで行う。
