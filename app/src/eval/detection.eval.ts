@@ -28,10 +28,12 @@ function explain(e: unknown): string | null {
   const project = process.env.GOOGLE_CLOUD_PROJECT;
   if (status === 403 || /PERMISSION_DENIED/.test(text)) {
     return [
-      `権限がありません（403）。プロジェクト：${project}`,
+      `権限がないか、モデルが使えません（403）。プロジェクト：${project}、モデル：${process.env.GEMINI_MODEL}`,
       "  よくある原因と直し方（app/README.md「うまくいかないとき」）：",
-      `  1. Vertex AI の API が有効でない → gcloud services enable aiplatform.googleapis.com --project ${project}`,
-      "  2. ログインしたアカウントに権限がない → gcloud auth list でアカウントを確かめ、",
+      "  1. モデルの提供が終わっている（エラーに「or it may not exist」とあるとき）→ .env.local の GEMINI_MODEL を、",
+      "     今使えるモデル名にする（例：gemini-3.8-flash、gemini-3.5-flash-lite）",
+      `  2. Vertex AI の API が有効でない → gcloud services enable aiplatform.googleapis.com --project ${project}`,
+      "  3. ログインしたアカウントに権限がない → gcloud auth list でアカウントを確かめ、",
       `     そのプロジェクトのオーナーか「Vertex AI ユーザー」にする（gcloud auth application-default login もそのアカウントで）`,
     ].join("\n");
   }
