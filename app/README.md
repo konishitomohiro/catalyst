@@ -171,15 +171,17 @@ gcloud run deploy catalyst --source app --region asia-northeast1 --service-accou
 ## フォルダ
 
 ```
-src/app/              画面とAPI（ホーム・会話・/api/detect・文字起こしの試作）
+src/app/              画面とAPI（ホーム・会話・伝える前に確かめる・/api/detect・/api/premises・文字起こしの試作）
 src/lib/session.ts    対面の流れの状態（分かりますか？・質問リスト・取り消す）
 src/lib/detect.ts     Gemini に前提が要りそうな言葉を探させる
-src/lib/detection.ts  AIの出力の検査（形式・発言にある語だけ・読み・件数）
+src/lib/detection.ts  会話：AIの出力の検査（形式・発言にある語だけ・読み・件数）
+src/lib/premise.ts    伝える前に確かめる：AIの出力の検査（文の中の場所・問いの形・件数）
 src/lib/prompt.ts     AIへの指示文
 src/lib/gemini.ts     Gemini クライアント（Vertex AI）
 src/lib/rateLimit.ts  呼び出し回数の上限
 src/lib/viewpoints.ts これまでの案の観点リスト（今は使っていない）
 src/eval/             AI評価テスト（npm run eval）
-tests/eval-cases.json AI評価テストのケース10件（案）
+tests/eval-cases.json AI評価テストのケース（会話・10件・案）
+tests/premise-cases.json AI評価テストのケース（伝える前に確かめる・5件・案）
 public/               画像などの静的ファイル
 ```
