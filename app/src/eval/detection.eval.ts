@@ -10,49 +10,84 @@ import { detectTerms } from "@/lib/detect";
 import { judge, type EvalCase } from "@/lib/evalJudge";
 
 const all = cases.cases as EvalCase[];
+
+// 設定が足りないときは飛ばす（理由は vitest.eval.config.mts が表示する）
+const missing = ["GOOGLE_CLOUD_PROJECT", "GEMINI_MODEL"].filter(
+  (k) => !process.env[k],
+);
 const results: { id: string; pass: boolean; terms: string[]; why: string }[] =
   [];
 
-describe.skipIf(!process.env.GOOGLE_CLOUD_PROJECT)(
+/** 権限・設定の問題で止まったときの短い説明。1件目で分かれば、残りは同じ理由で落ちるので飛ばす */
+let fatal: string | null = null;
+
+/** Google Cloud のエラーを、直し方つきの短い文にする */
+function explain(e: unknown): string | null {
+  const status = (e as { status?: number }).status;
+  const text = String((e as Error).message ?? e);
+  const project = process.env.GOOGLE_CLOUD_PROJECT;
+  if (status === 403 || /PERMISSION_DENIED/.test(text)) {
+    return [
+      `権限がありません（403）。プロジェクト：${project}`,
+      "  よくある原因と直し方（app/README.md「うまくいかないとき」）：",
+      `  1. Vertex AI の API が有効でない → gcloud services enable aiplatform.googleapis.com --project ${project}`,
+      "  2. ログインしたアカウントに権限がない → gcloud auth list でアカウントを確かめ、",
+      `     そのプロジェクトのオーナーか「Vertex AI ユーザー」にする（gcloud auth application-default login もそのアカウントで）`,
+    ].join("\n");
+  }
+  if (status === 401 || /default credentials|UNAUTHENTICATED/.test(text)) {
+    return "認証がありません。gcloud auth application-default login を実行してください。";
+  }
+  if (status === 404 || /NOT_FOUND/.test(text)) {
+    return `モデルが見つかりません（${process.env.GEMINI_MODEL}）。モデル名と GOOGLE_CLOUD_LOCATION を確かめてください。`;
+  }
+  return null;
+}
+
+describe.skipIf(missing.length > 0)(
   `AI評価テスト（モデル：${process.env.GEMINI_MODEL ?? "未設定"}）`,
   () => {
-    it.each(all.map((c) => [c.id, c] as const))(
-      "%s",
-      async (_id, c) => {
-        const r = await detectTerms({
+    it.for(all)("$id", { timeout: 60_000 }, async (c, ctx) => {
+      if (fatal) ctx.skip();
+      let r;
+      try {
+        r = await detectTerms({
           sender: c.sender,
           recipient: c.recipient,
           utterance: c.utterance,
           context: "",
         });
-        // コード側の検査（形式・発言にある語だけ・読みはかなだけ）を通ること
-        expect(r.ok, r.ok ? "" : r.error).toBe(true);
-        if (!r.ok) return;
-        const terms = r.terms.map((t) => t.term);
-        const j = judge(c, terms);
-        results.push({
-          id: c.id,
-          pass: j.pass,
-          terms,
-          why: [
-            j.missing.length
-              ? `出なかった：${j.missing.map((g) => g.join("/")).join("、")}`
-              : "",
-            j.unexpected.length
-              ? `出てしまった：${j.unexpected.join("、")}`
-              : "",
-          ]
-            .filter(Boolean)
-            .join(" "),
-        });
-        expect(j, `${c.utterance} → [${terms.join("、")}]`).toMatchObject({
-          pass: true,
-        });
-      },
-      60_000,
-    );
+      } catch (e) {
+        const why = explain(e);
+        if (!why) throw e;
+        fatal = why;
+        throw new Error(why);
+      }
+      // コード側の検査（形式・発言にある語だけ・読みはかなだけ）を通ること
+      expect(r.ok, r.ok ? "" : r.error).toBe(true);
+      if (!r.ok) return;
+      const terms = r.terms.map((t) => t.term);
+      const j = judge(c, terms);
+      results.push({
+        id: c.id,
+        pass: j.pass,
+        terms,
+        why: [
+          j.missing.length
+            ? `出なかった：${j.missing.map((g) => g.join("/")).join("、")}`
+            : "",
+          j.unexpected.length ? `出てしまった：${j.unexpected.join("、")}` : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      });
+      expect(j, `${c.utterance} → [${terms.join("、")}]`).toMatchObject({
+        pass: true,
+      });
+    });
 
     afterAll(() => {
+      if (fatal) return;
       const passed = results.filter((r) => r.pass).length;
       console.log(`\n合格 ${passed} / ${results.length}`);
       for (const r of results) {
