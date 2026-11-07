@@ -56,7 +56,7 @@ npm install
 ```
 
 ```bash
-printf 'GOOGLE_CLOUD_PROJECT=%s\nGOOGLE_CLOUD_LOCATION=global\nGEMINI_MODEL=gemini-2.5-flash\n' "$PROJECT_ID" > .env.local
+printf 'GOOGLE_CLOUD_PROJECT=%s\nGOOGLE_CLOUD_LOCATION=global\nGEMINI_MODEL=gemini-3.8-flash\n' "$PROJECT_ID" > .env.local
 ```
 
 `GEMINI_MODEL` は、Vertex AI のモデル一覧で最新のものを確かめて、`.env.local` を開いて書き換えてよい。
@@ -79,7 +79,9 @@ Gemini は **Vertex AI 経由**で呼ぶ。ハッカソンで配られる Google
 
 ## うまくいかないとき
 
-**`npm run eval` が「権限がありません（403）」になる。** 次を順に確かめる。`$PROJECT_ID` は「はじめかた」の 2 で覚えさせたもの。
+**`npm run eval` が「権限がないか、モデルが使えません（403）」になる。** 次を順に確かめる。`$PROJECT_ID` は「はじめかた」の 2 で覚えさせたもの。
+
+0. **モデルの提供が終わっていないか。** エラーに「or it may not exist」とあれば、まずこれを疑う。Gemini のモデルは1年ほどで提供が終わる（例：`gemini-2.5-flash` は 2026年10月に Vertex AI での提供が終わった）。`.env.local` の `GEMINI_MODEL` を、今使えるモデル名（2026年11月時点の例：`gemini-3.8-flash`、`gemini-3.5-flash-lite`）にする。Cloud Run の環境変数も同じものにする。
 
 1. Vertex AI の API が、そのプロジェクトで有効か。何も出なければ有効でない。
 
@@ -141,7 +143,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:catal
 デプロイ（毎回）：
 
 ```bash
-gcloud run deploy catalyst --source app --region asia-northeast1 --service-account catalyst-run@$PROJECT_ID.iam.gserviceaccount.com --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-2.5-flash --max-instances 2 --allow-unauthenticated
+gcloud run deploy catalyst --source app --region asia-northeast1 --service-account catalyst-run@$PROJECT_ID.iam.gserviceaccount.com --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-3.8-flash --max-instances 2 --allow-unauthenticated
 ```
 
 - `already exists`（すでにある）と出たものは、作り直さなくてよい。
