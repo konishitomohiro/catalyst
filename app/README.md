@@ -17,17 +17,65 @@
 ## はじめかた
 
 Node.js 22 以上（`.nvmrc`）と、Google Cloud の CLI（`gcloud`）が必要。
+コマンドは1行ずつコピーして実行する（Mac の zsh は、行の後ろの `#` を説明文として扱わないため、説明はコマンドの外に書いている）。
+
+**1. 使うプロジェクトの ID を確かめる。** 一覧の `PROJECT_ID` の列が ID（名前とは違う）。
+
+```bash
+gcloud projects list
+```
+
+**2. その ID を、このターミナルで覚えさせる。** `ここにID` を一覧の ID に書き換えて実行する。以降のコマンドは `$PROJECT_ID` のまま使える。
+
+```bash
+PROJECT_ID=ここにID
+```
+
+**3. gcloud とローカルの認証を、そのプロジェクトに合わせる。**
+
+```bash
+gcloud config set project $PROJECT_ID
+```
+
+```bash
+gcloud auth application-default login
+```
+
+```bash
+gcloud auth application-default set-quota-project $PROJECT_ID
+```
+
+**4. app フォルダで、設定ファイルを作る。**
 
 ```bash
 cd app
-npm install
-cp .env.example .env.local   # GOOGLE_CLOUD_PROJECT と GEMINI_MODEL を入れる
-gcloud auth application-default login   # Vertex AI を呼ぶための認証（API キーは使わない）
-npm run dev                  # http://localhost:3000
 ```
+
+```bash
+npm install
+```
+
+```bash
+printf 'GOOGLE_CLOUD_PROJECT=%s\nGOOGLE_CLOUD_LOCATION=global\nGEMINI_MODEL=gemini-2.5-flash\n' "$PROJECT_ID" > .env.local
+```
+
+`GEMINI_MODEL` は、Vertex AI のモデル一覧で最新のものを確かめて、`.env.local` を開いて書き換えてよい。
+
+**5. 動かす。**
+
+```bash
+npm run eval
+```
+
+```bash
+npm run dev
+```
+
+`npm run dev` のあと、Chrome で http://localhost:3000 を開く。
 
 Gemini は **Vertex AI 経由**で呼ぶ。ハッカソンで配られる Google Cloud クレジットは、Google AI Studio の API キーには使えないため。
 ログインしたアカウントに、そのプロジェクトで Vertex AI を使う権限（オーナー、または「Vertex AI ユーザー」）が要る。
+初めてのプロジェクトでは、先に下の「1回だけ」の手順で Vertex AI の API を有効にする。
 
 ## コマンド
 
@@ -42,27 +90,29 @@ Gemini は **Vertex AI 経由**で呼ぶ。ハッカソンで配られる Google
 
 ## Cloud Run へのデプロイ
 
-リポジトリ直下から。`PROJECT_ID` はクレジットを有効にしたプロジェクトの ID に置き換える。
+リポジトリ直下（`catalyst` フォルダ）から。先に上の「はじめかた」の 1〜3 で `PROJECT_ID` を覚えさせておく（ターミナルを開き直したら、2 をもう一度）。
 
 1回だけ（API を有効にし、Cloud Run 用のサービスアカウントに Vertex AI を使う権限を付ける）：
 
 ```bash
-gcloud config set project PROJECT_ID
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com aiplatform.googleapis.com
+```
+
+```bash
 gcloud iam service-accounts create catalyst-run
-gcloud projects add-iam-policy-binding PROJECT_ID \
-  --member=serviceAccount:catalyst-run@PROJECT_ID.iam.gserviceaccount.com \
-  --role=roles/aiplatform.user
+```
+
+```bash
+gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:catalyst-run@$PROJECT_ID.iam.gserviceaccount.com --role=roles/aiplatform.user
 ```
 
 デプロイ（毎回）：
 
 ```bash
-gcloud run deploy catalyst --source app --region asia-northeast1 \
-  --service-account catalyst-run@PROJECT_ID.iam.gserviceaccount.com \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-2.5-flash \
-  --max-instances 2 --allow-unauthenticated
+gcloud run deploy catalyst --source app --region asia-northeast1 --service-account catalyst-run@$PROJECT_ID.iam.gserviceaccount.com --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-2.5-flash --max-instances 2 --allow-unauthenticated
 ```
+
+- `already exists`（すでにある）と出たものは、作り直さなくてよい。
 
 - API キーは使わないので、Secret Manager は要らない。
 - `--max-instances 2` は費用事故の備え（例/Docs/9_直すこと.md #3）。予算アラートも別に設定する。
