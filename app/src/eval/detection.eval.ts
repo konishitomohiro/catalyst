@@ -62,8 +62,12 @@ describe.skipIf(missing.length > 0)(
       } catch (e) {
         const why = explain(e);
         if (!why) throw e;
-        fatal = why;
-        throw new Error(why);
+        // 元のエラー文も短く添える（原因を見分けるため）
+        const raw = String((e as Error).message ?? e)
+          .replace(/\s+/g, " ")
+          .slice(0, 400);
+        fatal = `${why}\n  Google からのエラー：${raw}`;
+        throw new Error(fatal);
       }
       // コード側の検査（形式・発言にある語だけ・読みはかなだけ）を通ること
       expect(r.ok, r.ok ? "" : r.error).toBe(true);
