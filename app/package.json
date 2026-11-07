@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run format:check"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run format:check",
+    "eval": "vitest run --config vitest.eval.config.mts"
   },
   "dependencies": {
     "@google/genai": "^2.32.0",

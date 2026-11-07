@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer, useRef, useState } from "react";
 import type { DetectedTerm } from "@/lib/detection";
+import { MAX_CONTEXT, MAX_UTTERANCE } from "@/lib/limits";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term } from "./Furi";
@@ -29,6 +30,7 @@ export function Session({
   const [busy, setBusy] = useState(0);
   const [aiError, setAiError] = useState<string | null>(null);
   const [cardIndex, setCardIndex] = useState(0);
+  const [confirmExit, setConfirmExit] = useState(false);
   const linesRef = useRef<string[]>([]);
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -52,10 +54,14 @@ export function Session({
   }
 
   const speech = useSpeechRecognition((text) => {
-    const context = linesRef.current.slice(-CONTEXT_LINES).join("\n");
+    // API の上限に収める（直前の会話は、新しい側を残す）
+    const context = linesRef.current
+      .slice(-CONTEXT_LINES)
+      .join("\n")
+      .slice(-MAX_CONTEXT);
     linesRef.current = [...linesRef.current, text];
     setLines(linesRef.current);
-    void detect(text, context);
+    void detect(text.slice(0, MAX_UTTERANCE), context);
   });
 
   // 新しい項目が増えたら、いちばん見えやすい下までスクロールする
@@ -136,7 +142,17 @@ export function Session({
             <span>
               {roleLabel(sender)} → {roleLabel(recipient)}
             </span>
-            <button className={styles.textButton} onClick={onExit}>
+            <button
+              className={styles.textButton}
+              onClick={() => {
+                // 押し間違えても大丈夫（ユニバーサルデザイン 原則5）：消えるものがあれば確かめる
+                if (state.list.length > 0 || state.pending.length > 0) {
+                  setConfirmExit(true);
+                } else {
+                  onExit();
+                }
+              }}
+            >
               <Furi text="ホームに{戻|もど}る" />
             </button>
           </div>
@@ -197,6 +213,25 @@ export function Session({
             <Furi text="{言葉|ことば}を{見|み}つけられませんでした：" />
             {aiError}
           </p>
+        )}
+
+        {confirmExit && (
+          <div className={styles.undo} role="alertdialog">
+            <span>
+              <Furi text="ホームに{戻|もど}ると、リストが{消|き}えます。" />
+            </span>
+            <span className={styles.confirmButtons}>
+              <button
+                className={styles.undoButton}
+                onClick={() => setConfirmExit(false)}
+              >
+                <Furi text="{会話|かいわ}を{続|つづ}ける" />
+              </button>
+              <button className={styles.undoButton} onClick={onExit}>
+                <Furi text="{消|け}して{戻|もど}る" />
+              </button>
+            </span>
+          </div>
         )}
 
         {state.lastAnswer && (

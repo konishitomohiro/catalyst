@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" font-family="'Noto Sans JP', 'Hiragino Sans', sans-serif" role="img" aria-label="構成図：聞く人のスマホのブラウザから Cloud Run 上の Next.js を呼び、Cloud Run が Vertex AI の Gemini を呼ぶ">
+  <title>構成図（下書き）</title>
+  <rect width="1200" height="640" fill="#FBFBF8"/>
+  <text x="40" y="56" font-size="28" font-weight="700" fill="#1F2430">構成図（下書き・2026年11月6日）</text>
+  <text x="40" y="88" font-size="16" fill="#4A5260">提出前に Google Cloud の公式アイコンで描き直す</text>
+
+  <!-- 利用者の端末 -->
+  <rect x="40" y="150" width="300" height="300" rx="16" fill="#FFFFFF" stroke="#8A8A8A" stroke-width="2"/>
+  <text x="64" y="190" font-size="20" font-weight="700" fill="#1F2430">聞く人のスマホ / パソコン</text>
+  <text x="64" y="220" font-size="16" fill="#4A5260">ブラウザ（Chrome / Safari）</text>
+  <rect x="64" y="244" width="252" height="76" rx="10" fill="#EEF2F8"/>
+  <text x="80" y="276" font-size="16" fill="#1F2430">画面（ホーム・会話・帯）</text>
+  <text x="80" y="302" font-size="14" fill="#4A5260">質問リストは端末の中だけ</text>
+  <rect x="64" y="336" width="252" height="90" rx="10" fill="#EEF2F8"/>
+  <text x="80" y="368" font-size="16" fill="#1F2430">文字起こし</text>
+  <text x="80" y="394" font-size="14" fill="#4A5260">ブラウザの音声認識</text>
+  <text x="80" y="414" font-size="14" fill="#4A5260">（Web Speech API）</text>
+
+  <!-- 矢印1 -->
+  <line x1="340" y1="300" x2="440" y2="300" stroke="#4A5260" stroke-width="3"/>
+  <polygon points="440,290 460,300 440,310" fill="#4A5260"/>
+  <text x="352" y="284" font-size="14" fill="#4A5260">HTTPS</text>
+  <text x="352" y="330" font-size="13" fill="#4A5260">発言の文字</text>
+
+  <!-- Google Cloud -->
+  <rect x="460" y="120" width="700" height="440" rx="20" fill="#F1F5FB" stroke="#1A5FB4" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="484" y="156" font-size="18" font-weight="700" fill="#1A5FB4">Google Cloud（クレジットを有効にしたプロジェクト）</text>
+
+  <!-- Cloud Run -->
+  <rect x="484" y="180" width="320" height="270" rx="16" fill="#FFFFFF" stroke="#1A5FB4" stroke-width="3"/>
+  <text x="508" y="218" font-size="22" font-weight="700" fill="#1A5FB4">Cloud Run</text>
+  <text x="508" y="246" font-size="15" fill="#4A5260">asia-northeast1・最大2インスタンス</text>
+  <text x="508" y="284" font-size="16" fill="#1F2430">Next.js（画面と API）</text>
+  <text x="508" y="314" font-size="15" fill="#1F2430">/api/detect</text>
+  <text x="524" y="340" font-size="14" fill="#4A5260">・呼び出し回数と長さの上限</text>
+  <text x="524" y="364" font-size="14" fill="#4A5260">・指示文をつくる</text>
+  <text x="524" y="388" font-size="14" fill="#4A5260">・AI の出力を検査する</text>
+  <text x="524" y="412" font-size="14" fill="#4A5260">（発言にない語・説明文を捨てる）</text>
+  <text x="508" y="438" font-size="13" fill="#4A5260">サービスアカウント：Vertex AI ユーザー</text>
+
+  <!-- 矢印2 -->
+  <line x1="804" y1="300" x2="884" y2="300" stroke="#4A5260" stroke-width="3"/>
+  <polygon points="884,290 904,300 884,310" fill="#4A5260"/>
+
+  <!-- Vertex AI -->
+  <rect x="904" y="200" width="232" height="200" rx="16" fill="#FFFFFF" stroke="#1A5FB4" stroke-width="3"/>
+  <text x="928" y="240" font-size="22" font-weight="700" fill="#1A5FB4">Vertex AI</text>
+  <text x="928" y="272" font-size="18" fill="#1F2430">Gemini</text>
+  <text x="928" y="306" font-size="14" fill="#4A5260">前提が要りそうな言葉と</text>
+  <text x="928" y="328" font-size="14" fill="#4A5260">読みを JSON で返す</text>
+  <text x="928" y="362" font-size="14" fill="#A84F00">意味や答えは書かせない</text>
+
+  <!-- デプロイ -->
+  <rect x="484" y="472" width="652" height="64" rx="12" fill="#FFFFFF" stroke="#8A8A8A" stroke-width="1.5"/>
+  <text x="508" y="510" font-size="15" fill="#4A5260">デプロイ：gcloud run deploy --source → Cloud Build → Artifact Registry → Cloud Run</text>
+
+  <text x="40" y="600" font-size="15" fill="#4A5260">会話は保存しない（データベースなし）。認証は API キーを使わず、Google Cloud のサービスアカウントで行う。</text>
+</svg>
