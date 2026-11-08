@@ -1,6 +1,5 @@
 // ふりがな。文言の中の {漢字|よみ} を <ruby> にする（例/Docs/4_デザイン.md）。
 // 画面の文言のふりがな（class="furi"）は、設定で消せる。AIが見つけた言葉（Term）のふりがなは消さない。
-import { Fragment } from "react";
 
 const PATTERN = /\{([^|}]+)\|([^}]+)\}/g;
 
@@ -18,7 +17,8 @@ export function Furi({ text }: { text: string }) {
     last = m.index + m[0].length;
   }
   out.push(text.slice(last));
-  return <Fragment>{out}</Fragment>;
+  // 1つの span にまとめる（flex の中に置いても、文字の間に隙間が入らないように）
+  return <span>{out}</span>;
 }
 
 /** AIが見つけた言葉。読みがあればふりがなを付ける */

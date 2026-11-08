@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ROLE_READING, ROLES, type Role } from "@/lib/roles";
 import { Compose } from "./Compose";
 import { Furi, Word } from "./Furi";
+import { Icon, ROLE_ICON } from "./Icon";
 import { HistoryView } from "./HistoryView";
 import { Session } from "./Session";
 import { SettingsPanel, SettingsProvider } from "./Settings";
@@ -74,9 +75,9 @@ function Shell() {
 }
 
 const TABS: { tab: Tab; label: string; icon: string }[] = [
-  { tab: "home", label: "ホーム", icon: "⌂" },
-  { tab: "talk", label: "{会話|かいわ}", icon: "💬" },
-  { tab: "history", label: "{履歴|りれき}", icon: "🗒" },
+  { tab: "home", label: "ホーム", icon: "home" },
+  { tab: "talk", label: "{会話|かいわ}", icon: "forum" },
+  { tab: "history", label: "{履歴|りれき}", icon: "history" },
 ];
 
 function BottomNav({
@@ -97,8 +98,8 @@ function BottomNav({
           aria-current={t.tab === tab ? "page" : undefined}
           onClick={() => onChange(t.tab)}
         >
-          <span aria-hidden className={styles.navIcon}>
-            {t.icon}
+          <span className={styles.navIcon}>
+            <Icon name={t.icon} fill={t.tab === tab} />
             {t.tab === "talk" && live && <span className={styles.navLive} />}
           </span>
           <Furi text={t.label} />
@@ -108,14 +109,16 @@ function BottomNav({
   );
 }
 
-const MODES: { mode: Mode; label: string; desc: string }[] = [
+const MODES: { mode: Mode; label: string; desc: string; icon: string }[] = [
   {
     mode: "talk",
+    icon: "hearing",
     label: "{会話|かいわ}を{聞|き}く",
     desc: "{聞|き}く{人|ひと}の{端末|たんまつ}で{会話|かいわ}を{聞|き}き、{分|わ}かりにくそうな{言葉|ことば}をそっと{確|たし}かめます",
   },
   {
     mode: "compose",
+    icon: "edit_note",
     label: "{伝|つた}える{前|まえ}に{確|たし}かめる",
     desc: "{指示|しじ}や{説明|せつめい}を{書|か}くと、{相手|あいて}が{分|わ}からなそうな{点|てん}を{挙|あ}げます",
   },
@@ -162,10 +165,15 @@ function Home({
                 onChange={() => setMode(m.mode)}
               />
               <span className={styles.modeLabel}>
-                <span aria-hidden className={styles.chipMark}>
-                  {m.mode === mode ? "✓" : ""}
+                <span className={styles.modeIcon}>
+                  <Icon name={m.icon} fill={m.mode === mode} />
                 </span>
-                <Furi text={m.label} />
+                <span>
+                  <Furi text={m.label} />
+                </span>
+                <span className={styles.modeCheck}>
+                  {m.mode === mode && <Icon name="check_circle" fill />}
+                </span>
               </span>
               <span className={styles.modeDesc}>
                 <Furi text={m.desc} />
@@ -200,6 +208,7 @@ function Home({
         onClick={() => onStart({ mode, sender, recipient })}
       >
         <Furi text="はじめる" />
+        <Icon name="arrow_forward" />
       </button>
       <p className={styles.note}>
         <Furi text="{試作|しさく}です。{話|はな}したり{書|か}いたりした{内容|ないよう}は、{文字|もじ}にするためと{言葉|ことば}を{見|み}つけるために、{外|そと}のサービスに{送|おく}られます。{架空|かくう}の{内容|ないよう}で{試|ため}せます。" />
@@ -239,9 +248,7 @@ function RolePicker({
               checked={r === value}
               onChange={() => onChange(r)}
             />
-            <span aria-hidden className={styles.chipMark}>
-              {r === value ? "✓" : ""}
-            </span>
+            <Icon name={r === value ? "check" : ROLE_ICON[r]} />
             <Word word={r} reading={ROLE_READING[r]} />
           </label>
         ))}

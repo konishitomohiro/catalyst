@@ -76,13 +76,20 @@ const FURI: { v: FuriMode; label: string }[] = [
 export function SizeSwitch() {
   const { settings, update } = useSettings();
   return (
-    <div className={styles.seg} role="radiogroup" aria-label="文字の大きさ">
+    <div
+      className={styles.sizeSwitch}
+      role="radiogroup"
+      aria-label="文字の大きさ"
+    >
       {SIZES.map((s) => (
         <button
           key={s.v}
           role="radio"
           aria-checked={settings.fontSize === s.v}
-          className={settings.fontSize === s.v ? styles.segOn : styles.segItem}
+          aria-label={`文字 ${s.label}`}
+          className={`${styles.sizeItem} ${styles["size_" + s.v]} ${
+            settings.fontSize === s.v ? styles.sizeOn : ""
+          }`}
           onClick={() => update({ fontSize: s.v })}
         >
           {s.label}
@@ -116,6 +123,9 @@ export function SettingsPanel() {
               key={f.v}
               role="radio"
               aria-checked={settings.furigana === f.v}
+              aria-label={
+                f.v === "all" ? "ふりがな すべて" : "ふりがな 見つけた言葉だけ"
+              }
               className={
                 settings.furigana === f.v ? styles.segOn : styles.segItem
               }

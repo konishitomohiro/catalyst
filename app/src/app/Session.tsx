@@ -7,6 +7,7 @@ import { saveRecord } from "@/lib/history";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
+import { Icon, ROLE_ICON } from "./Icon";
 import { SizeSwitch } from "./Settings";
 import { useSpeechRecognition } from "./useSpeechRecognition";
 import styles from "./app.module.css";
@@ -123,11 +124,11 @@ export function Session({
     <div className={styles.screen}>
       <div className={styles.paper}>
         <div className={styles.sessionHead}>
-          <span>
-            {roleLabel(sender)} → {roleLabel(recipient)}
-          </span>
+          <h1 className={styles.topTitle}>
+            <Furi text="{会話|かいわ}" />
+          </h1>
           <button
-            className={styles.textButton}
+            className={styles.endButton}
             onClick={() => {
               // 押し間違えても大丈夫（ユニバーサルデザイン 原則5）：消えるものがあれば確かめる
               if (state.list.length > 0 || state.pending.length > 0) {
@@ -137,12 +138,31 @@ export function Session({
               }
             }}
           >
-            <Furi text="{会話|かいわ}を{終|お}える" />
+            <Icon name="stop_circle" />
+            <Furi text="{終|お}える" />
           </button>
           <SizeSwitch />
         </div>
+        <p className={styles.pairChip}>
+          <Icon name={ROLE_ICON[sender]} className={styles.inlineIcon} />
+          {roleLabel(sender)}
+          <Icon name="arrow_forward" className={styles.inlineIcon} />
+          <Icon name={ROLE_ICON[recipient]} className={styles.inlineIcon} />
+          {roleLabel(recipient)}
+        </p>
         {/* 質問リスト：画面上部。上ほど見えにくいので、まだ聞いていない言葉を下に置く */}
         <section className={styles.listArea} aria-label="分からなかった言葉">
+          <h2 className={styles.listTitle}>
+            <Icon name="edit_note" fill className={styles.orangeIcon} />
+            <Furi text="{聞|き}いておきたいこと" />
+            {state.list.some((x) => !x.checked) && (
+              <span className={styles.countBadge}>
+                <Furi
+                  text={`{残|のこ}り ${state.list.filter((x) => !x.checked).length}`}
+                />
+              </span>
+            )}
+          </h2>
           {state.list.length === 0 ? (
             <p className={styles.empty}>
               <Furi text="{分|わ}からなかった{言葉|ことば}が、ここに{並|なら}びます。{聞|き}けたら{印|しるし}をつけられます。" />
@@ -166,8 +186,17 @@ export function Session({
                         dispatch({ type: "toggle", key: item.key })
                       }
                     >
-                      <span aria-hidden className={styles.ring}>
-                        {item.checked ? "✓" : ""}
+                      <span
+                        className={item.checked ? styles.boxDone : styles.box}
+                      >
+                        <Icon
+                          name={
+                            item.checked
+                              ? "check_box"
+                              : "check_box_outline_blank"
+                          }
+                          fill={item.checked}
+                        />
                       </span>
                       <span className={styles.rowBody}>
                         <span className={styles.rowTerm}>
@@ -192,7 +221,12 @@ export function Session({
               key={lines.length - shownLines.length + i}
               className={styles.say}
             >
-              <span className={styles.who}>{roleLabel(sender)}</span>
+              <span className={styles.who}>
+                <span className={styles.avatar}>
+                  <Icon name={ROLE_ICON[sender]} />
+                </span>
+                {roleLabel(sender)}
+              </span>
               <p className={styles.bubble}>
                 <Marked text={t} terms={found} />
               </p>
@@ -200,7 +234,12 @@ export function Session({
           ))}
           {speech.interim && (
             <div className={styles.say}>
-              <span className={styles.who}>{roleLabel(sender)}</span>
+              <span className={styles.who}>
+                <span className={styles.avatar}>
+                  <Icon name={ROLE_ICON[sender]} />
+                </span>
+                {roleLabel(sender)}
+              </span>
               <p className={`${styles.bubble} ${styles.interim}`}>
                 {speech.interim}
               </p>
@@ -240,6 +279,7 @@ export function Session({
               onClick={speech.start}
               disabled={speech.supported !== true}
             >
+              <Icon name="mic" fill />
               <Furi text="{聞|き}き{取|と}りを{始|はじ}める" />
             </button>
           )}
@@ -318,7 +358,7 @@ export function Session({
               {state.pending.map((p) => (
                 <div key={p.key} className={styles.card}>
                   <p className={styles.question}>
-                    「
+                    <Icon name="help" className={styles.questionIcon} />「
                     <span className={styles.questionTerm}>
                       <Term term={p.term} reading={p.reading} />
                     </span>

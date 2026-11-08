@@ -11,6 +11,7 @@ import {
 import { ROLE_READING } from "@/lib/roles";
 import { TopBar } from "./TopBar";
 import { Furi, Term, Word } from "./Furi";
+import { Icon, ROLE_ICON } from "./Icon";
 import styles from "./app.module.css";
 
 const fmtDate = (ms: number) =>
@@ -34,11 +35,11 @@ export function HistoryView() {
   if (open) {
     return (
       <main className={styles.page}>
-        <TopBar title="{記録|きろく}">
-          <button className={styles.textButton} onClick={() => setOpenId(null)}>
-            <Furi text="← {一覧|いちらん}" />
-          </button>
-        </TopBar>
+        <TopBar
+          title="{記録|きろく}"
+          onBack={() => setOpenId(null)}
+          backLabel="一覧にもどる"
+        />
         <RecordHead r={open} />
         <h2 className={styles.subTitle}>
           <Furi text="{分|わ}からなかった{言葉|ことば}" />
@@ -51,11 +52,11 @@ export function HistoryView() {
           <ul className={styles.memoList}>
             {open.items.map((it) => (
               <li key={it.term} className={styles.memo}>
-                <span
-                  aria-hidden
-                  className={it.checked ? styles.ringDone : styles.ring}
-                >
-                  {it.checked ? "✓" : ""}
+                <span className={it.checked ? styles.boxDone : styles.box}>
+                  <Icon
+                    name={it.checked ? "check_box" : "check_box_outline_blank"}
+                    fill={it.checked}
+                  />
                 </span>
                 <span>
                   <span
@@ -137,6 +138,10 @@ export function HistoryView() {
                       {r.items.map((x) => x.term).join("、")}
                     </span>
                   )}
+                  <span className={styles.smallPrimary}>
+                    <Furi text="この{記録|きろく}を{見|み}る" />
+                    <Icon name="arrow_forward" />
+                  </span>
                 </button>
               </li>
             );
@@ -163,10 +168,24 @@ export function HistoryView() {
 function RecordHead({ r }: { r: HistoryRecord }) {
   return (
     <span className={styles.recordHead}>
-      <span className={styles.recordDate}>{fmtDate(r.startedAt)}</span>
-      <span>
-        <Word word={r.sender} reading={ROLE_READING[r.sender]} /> →{" "}
-        <Word word={r.recipient} reading={ROLE_READING[r.recipient]} />
+      <span className={styles.recordDate}>
+        <Icon name="calendar_today" className={styles.inlineIcon} />
+        {fmtDate(r.startedAt)}
+      </span>
+      <span className={styles.pairBox}>
+        <span className={styles.pairRole}>
+          <span className={styles.avatar}>
+            <Icon name={ROLE_ICON[r.sender]} />
+          </span>
+          <Word word={r.sender} reading={ROLE_READING[r.sender]} />
+        </span>
+        <Icon name="arrow_forward" className={styles.inlineIcon} />
+        <span className={styles.pairRole}>
+          <span className={styles.avatarWarm}>
+            <Icon name={ROLE_ICON[r.recipient]} />
+          </span>
+          <Word word={r.recipient} reading={ROLE_READING[r.recipient]} />
+        </span>
       </span>
     </span>
   );

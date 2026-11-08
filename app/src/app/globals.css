@@ -1,22 +1,33 @@
 /* 部品表の値（例/Docs/4_デザイン.md）。ここにある値以外は使わない */
 :root {
-  /* 色3つ（2026-11-08 刷新）：できること（紺）・注意（オレンジ）・地（生成りの紙と濃い文字） */
-  --blue: #1b3f7a; /* 紺。生成り地に 9.6:1 */
-  --blue-soft: #e3eaf6;
-  --orange: #a84f00; /* 生成り地に 5.2:1 */
-  --orange-soft: #fde9d2;
-  --text: #1f1f1f;
-  --muted: #555049;
-  --line: #e2dccf; /* 区切り線（飾り） */
-  --border: #8a8378; /* 押せる部品の枠（地に 3:1 以上） */
-  --bg: #faf6ee; /* 生成りの地 */
-  --card: #ffffff; /* 地の上のカード（メモの紙） */
-  --dock: #24221f;
-  --dock-card: #34312d;
-  --dock-text: #ffffff;
-  --dock-muted: #cdc7bd;
-  --radius-lg: 1.25rem;
-  --nav-h: 4rem; /* 下のメニューの高さ */
+  /* 色（2026-11-08、Stitch の見本の値。Material 3 の色の役割に合わせた）
+     できること＝紺（primary）・注意＝オレンジ（secondary）・地＝明るいグレーの面と白いカード。
+     終える操作だけ、見本と同じ赤（error）を使う */
+  --blue: #004790; /* primary。地に 9.9:1 */
+  --blue-mid: #1a5fb4; /* primary-container（受け手の吹き出し・「いいえ」） */
+  --blue-soft: #d6e3ff; /* primary-fixed */
+  --orange: #904d00; /* secondary。地に 6.4:1 */
+  --orange-soft: #ffdcc3; /* secondary-fixed */
+  --on-orange-soft: #2f1500;
+  --red: #ba1a1a;
+  --red-soft: #ffdad6;
+  --on-red-soft: #93000a;
+  --text: #1a1c1b;
+  --muted: #424752; /* on-surface-variant。地に 8.9:1 */
+  --line: #c2c6d4; /* outline-variant（飾りの線） */
+  --border: #727783; /* outline（押せる部品の枠。地に 4.4:1） */
+  --bg: #f9f9f6; /* surface */
+  --card: #ffffff; /* surface-container-lowest */
+  --container: #eeeeeb; /* surface-container */
+  --container-high: #e8e8e5;
+  --dock: #2f312f; /* inverse-surface */
+  --dock-card: #3d3f3d;
+  --dock-text: #f1f1ee;
+  --dock-muted: #c6c8c4;
+  --radius-lg: 1rem;
+  --shadow-sm: 0 1px 3px rgb(22 78 138 / 0.08);
+  --shadow-md: 0 4px 12px rgb(22 78 138 / 0.14);
+  --nav-h: 4.5rem; /* 下のメニューの高さ */
 
   /* 余白は3段階：画面の左右・要素の間・節の間 */
   --side: 1.25rem;
@@ -54,6 +65,7 @@ body {
   color: var(--text);
   background: var(--bg);
   font-family:
+    "Noto Sans JP",
     system-ui,
     -apple-system,
     "Hiragino Sans",
@@ -87,4 +99,19 @@ html[data-furi="terms"] ruby.furi rt {
 :focus-visible {
   outline: 3px solid var(--blue);
   outline-offset: 2px;
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "liga";
 }
