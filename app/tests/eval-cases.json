@@ -86,6 +86,42 @@
       "mustInclude": [],
       "mustExclude": ["eGFR"],
       "note": "医師なら分かる語は返さない（受け手の職種で変わるか）"
+    },
+    {
+      "id": "qty-tape-10",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "ロキソニンテープを10枚処方してください",
+      "mustInclude": [["10枚"]],
+      "mustExclude": [],
+      "note": "枚数の決まり方（1日何枚・何日分）がない（2026-11-08、Tomo）"
+    },
+    {
+      "id": "qty-tape-10-explained",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "ロキソニンテープを1日1回1枚、腰に貼るので、10日分で10枚処方してください",
+      "mustInclude": [],
+      "mustExclude": ["10枚", "1枚"],
+      "note": "枚数の決まり方が書いてある"
+    },
+    {
+      "id": "qty-tablet-14",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "痛み止めを14錠出しておきます",
+      "mustInclude": [["14錠"]],
+      "mustExclude": [],
+      "note": "錠数の決まり方がない"
+    },
+    {
+      "id": "qty-dose-explained",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "この薬は1日3回、毎食後に1錠ずつ、5日分です",
+      "mustInclude": [],
+      "mustExclude": ["1錠", "5日分", "1日3回"],
+      "note": "量の決まり方が書いてある"
     }
   ]
 }
