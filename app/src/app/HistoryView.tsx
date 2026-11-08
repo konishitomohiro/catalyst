@@ -14,6 +14,7 @@ import { TopBar } from "./TopBar";
 import { Furi, Term, Word } from "./Furi";
 import { Icon } from "./Icon";
 import { useTestInput } from "./TestFlag";
+import { Thinking } from "./Thinking";
 import { sampleHistory } from "@/lib/testInput";
 import styles from "./app.module.css";
 
@@ -45,6 +46,13 @@ export function HistoryView() {
           backLabel="一覧にもどる"
         />
         <RecordHead r={open} />
+        <RecordSummary
+          r={open}
+          onSaved={(rec) => {
+            saveRecord(rec);
+            refresh();
+          }}
+        />
         <h2 className={styles.subTitle}>
           <Furi text="{分|わ}からなかった{言葉|ことば}" />
         </h2>
@@ -222,5 +230,78 @@ function ConfirmDelete(p: {
         </button>
       </span>
     </div>
+  );
+}
+
+/** AIによる要約。押したときだけ会話の文字を送り、結果はこの端末の記録に足す */
+function RecordSummary({
+  r,
+  onSaved,
+}: {
+  r: HistoryRecord;
+  onSaved: (rec: HistoryRecord) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (r.lines.length === 0) return null;
+
+  async function make() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender: r.sender,
+          recipient: r.recipient,
+          lines: r.lines,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `エラー ${res.status}`);
+      onSaved({ ...r, summary: data.points });
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className={styles.summary} aria-live="polite">
+      <h2 className={styles.subTitle}>
+        <Furi text="{要約|ようやく}" />
+      </h2>
+      {r.summary ? (
+        r.summary.length === 0 ? (
+          <p className={styles.empty}>
+            <Furi text="まとめる{要点|ようてん}はありませんでした。" />
+          </p>
+        ) : (
+          <ul className={styles.summaryList}>
+            {r.summary.map((p) => (
+              <li key={p.quote}>
+                {p.text}
+                <span className={styles.quote}>「{p.quote}」</span>
+              </li>
+            ))}
+          </ul>
+        )
+      ) : busy ? (
+        <Thinking text="{会話|かいわ}の{要点|ようてん}をまとめています" />
+      ) : (
+        <button className={styles.outline} onClick={make}>
+          <Icon name="summarize" />
+          <Furi text="{要約|ようやく}を{作|つく}る" />
+        </button>
+      )}
+      {error && <p className={styles.error}>{error}</p>}
+      {r.summary && r.summary.length > 0 && (
+        <p className={styles.note}>
+          <Furi text="AIがまとめたものです。{元|もと}の{会話|かいわ}は{下|した}にあります。" />
+        </p>
+      )}
+    </section>
   );
 }

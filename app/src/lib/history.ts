@@ -1,5 +1,6 @@
 // 会話の履歴（例/Docs/1_方向.md「会話履歴の保存」）。その端末の中だけに残す。サーバーには送らない。
 import type { Role } from "./roles";
+import type { SummaryPoint } from "./summary";
 
 export type HistoryItem = {
   term: string;
@@ -19,6 +20,8 @@ export type HistoryRecord = {
   items: HistoryItem[];
   /** 会話の文字 */
   lines: string[];
+  /** AIによる要約（「要約を作る」を押したときだけ） */
+  summary?: SummaryPoint[];
 };
 
 export const HISTORY_KEY = "catalyst.history";

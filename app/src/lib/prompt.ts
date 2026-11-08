@@ -1,6 +1,7 @@
 // AIへの指示文（例/Docs/3_仕組み.md「AIへの指示文」）。
 // AIは用語を見つけるだけ。意味の説明や答えは書かせない（医療で誤った答えは命に関わるため）。
 import type { Role } from "./roles";
+import { MAX_SUMMARY_POINTS } from "./summary";
 
 export function buildDetectionPrompt(args: {
   sender: Role;
@@ -71,4 +72,26 @@ ${sender}が${recipient}に伝えようとしている文章を読み、
 
 文章：
 ${message}`;
+}
+
+/** 履歴の要約：聞いた人（recipient）があとで見返す要点 */
+export function buildSummaryPrompt(args: {
+  sender: Role;
+  recipient: Role;
+  lines: string[];
+}): string {
+  return [
+    `次は、${args.sender}が${args.recipient}に話した会話の文字起こしです。`,
+    `${args.recipient}があとで見返すための要点を、${MAX_SUMMARY_POINTS}つまで作ってください。`,
+    "",
+    "決まり：",
+    "- 会話に出たことだけを書く。会話にない説明・理由・助言・医学的な判断は足さない。",
+    "- することや決まり（量・回数・時刻・日付・持ち物・連絡のしかた）を優先する。数や時刻は会話のとおりに書く。",
+    `- ${args.recipient}が分かるやさしい言葉で、1つ1文、短く。`,
+    "- 要点ごとに、元になった会話の中の言葉（quote）を、会話の表記のまま短く書き写す。",
+    "- あいさつや雑談だけの会話なら、何も返さない。",
+    "",
+    "会話：",
+    ...args.lines.map((l) => `- ${l}`),
+  ].join("\n");
 }
