@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useReducer, useRef, useState } from "react";
-import type { DetectedTerm } from "@/lib/detection";
+import type { DetectedTerm, Speaker } from "@/lib/detection";
 import { MAX_CONTEXT, MAX_UTTERANCE } from "@/lib/limits";
 import { saveRecord } from "@/lib/history";
 import { ROLE_READING, type Role } from "@/lib/roles";
@@ -44,9 +44,18 @@ export function Session({
   const [cardIndex, setCardIndex] = useState(0);
   const [confirmExit, setConfirmExit] = useState(false);
   const linesRef = useRef<string[]>([]);
+  /** 行ごとの話した人。AIの答えが来るまでは話し手（左）に置く */
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const speakersRef = useRef<Speaker[]>([]);
+  const setSpeakerAt = (i: number, s: Speaker) => {
+    const next = [...speakersRef.current];
+    next[i] = s;
+    speakersRef.current = next;
+    setSpeakers(next);
+  };
   const listRef = useRef<HTMLOListElement>(null);
 
-  async function detect(utterance: string, context: string) {
+  async function detect(utterance: string, context: string, index: number) {
     setBusy((n) => n + 1);
     try {
       const res = await fetch("/api/detect", {
@@ -57,6 +66,10 @@ export function Session({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `エラー ${res.status}`);
       setAiError(null);
+      setSpeakerAt(
+        index,
+        data.speaker === "recipient" ? "recipient" : "sender",
+      );
       const terms = data.terms as DetectedTerm[];
       setFound((prev) => [
         ...prev,
@@ -73,13 +86,21 @@ export function Session({
   /** 聞き取った発言（声でも、テスト用の用意した発言でも同じ道を通る） */
   function onUtterance(text: string) {
     // API の上限に収める（直前の会話は、新しい側を残す）
+    // 誰が話したかを添えて渡す（AIが流れから話した人を決めるため）
+    const start = Math.max(0, linesRef.current.length - CONTEXT_LINES);
     const context = linesRef.current
-      .slice(-CONTEXT_LINES)
+      .slice(start)
+      .map((l, i) => {
+        const s = speakersRef.current[start + i] ?? "sender";
+        return `${s === "recipient" ? recipient : sender}：${l}`;
+      })
       .join("\n")
       .slice(-MAX_CONTEXT);
+    const index = linesRef.current.length;
     linesRef.current = [...linesRef.current, text];
     setLines(linesRef.current);
-    void detect(text.slice(0, MAX_UTTERANCE), context);
+    setSpeakerAt(index, "sender");
+    void detect(text.slice(0, MAX_UTTERANCE), context, index);
   }
 
   const speech = useSpeechRecognition(onUtterance);
@@ -114,8 +135,9 @@ export function Session({
         quote,
       })),
       lines,
+      speakers,
     });
-  }, [id, startedAt, sender, recipient, state.list, lines]);
+  }, [id, startedAt, sender, recipient, state.list, lines, speakers]);
 
   // 「取り消す」は5秒だけ出す
   useEffect(() => {
@@ -215,18 +237,36 @@ export function Session({
 
         {/* 会話の文字：最初は直近の2行だけ（原則3） */}
         <section className={styles.talk}>
-          {shownLines.map((t, i) => (
-            <div
-              key={lines.length - shownLines.length + i}
-              className={styles.say}
-            >
-              <p className={styles.bubble}>
-                <Marked text={t} terms={found} />
-              </p>
-            </div>
-          ))}
+          {shownLines.map((t, i) => {
+            const at = lines.length - shownLines.length + i;
+            const who = speakers[at] ?? "sender";
+            const role = who === "recipient" ? recipient : sender;
+            return (
+              <div
+                key={at}
+                className={
+                  who === "recipient" ? styles.sayRight : styles.sayLeft
+                }
+              >
+                <span className={styles.sayName}>{roleLabel(role)}</span>
+                {/* 押すと左右を入れ替える（AIが話した人を取り違えたとき） */}
+                <button
+                  className={styles.bubble}
+                  aria-label={`${role}の発言。押すと話した人を入れ替える`}
+                  onClick={() =>
+                    setSpeakerAt(
+                      at,
+                      who === "recipient" ? "sender" : "recipient",
+                    )
+                  }
+                >
+                  <Marked text={t} terms={found} />
+                </button>
+              </div>
+            );
+          })}
           {speech.interim && (
-            <div className={styles.say}>
+            <div className={styles.sayLeft}>
               <p className={`${styles.bubble} ${styles.interim}`}>
                 {speech.interim}
               </p>
@@ -258,7 +298,9 @@ export function Session({
           />
         )}
         {busy > 0 && (
-          <Thinking text="{分|わ}かりにくそうな{言葉|ことば}を{探|さが}しています" />
+          <div className={styles.thinkWrap}>
+            <Thinking text="{分|わ}かりにくそうな{言葉|ことば}を{探|さが}しています" />
+          </div>
         )}
         <div className={styles.controls}>
           {speech.listening ? (

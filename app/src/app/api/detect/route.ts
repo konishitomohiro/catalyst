@@ -34,7 +34,10 @@ export async function POST(request: Request) {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: 502 });
     }
-    return Response.json({ terms: result.terms });
+    return Response.json({
+      speaker: result.speaker,
+      terms: result.terms,
+    });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "AIの呼び出しに失敗した" }, { status: 502 });

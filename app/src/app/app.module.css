@@ -1598,3 +1598,77 @@
 .summaryList .quote {
   display: block;
 }
+
+/* ---- 会話：LINE のように、話す人は左・この端末を持つ人（聞く人）は右 ---- */
+.talk {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.sayLeft,
+.sayRight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 82%;
+}
+.sayLeft {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.sayRight {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.sayName {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 0 0.5rem;
+}
+.sayLeft .bubble,
+.sayRight .bubble {
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  line-height: 1.7;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.sayLeft .bubble {
+  background: var(--card);
+  border-radius: 0.25rem 1.125rem 1.125rem 1.125rem;
+}
+.sayRight .bubble {
+  background: var(--blue-soft);
+  border-radius: 1.125rem 0.25rem 1.125rem 1.125rem;
+}
+.summaryBox {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.summaryOverview {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.7;
+}
+.summaryBox .summaryList {
+  background: none;
+  border: none;
+  padding: 0 0 0 1.25rem;
+}
+.sayLeft p.bubble,
+.sayRight p.bubble {
+  margin: 0;
+  cursor: default;
+}
+.thinkWrap {
+  padding: 0 var(--side);
+}

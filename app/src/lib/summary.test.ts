@@ -2,40 +2,52 @@ import { describe, expect, it } from "vitest";
 import { MAX_SUMMARY_POINTS, parseSummary } from "./summary";
 
 const lines = [
-  "この薬を1日3回、毎食後に飲んでください",
-  "次は2週間後に来てください",
+  "医師：この薬を1日3回、毎食後に飲んでください",
+  "患者：食事をとらなかった日はどうしますか",
+  "医師：そのときも何か少し食べてから飲んでください",
 ];
 
 describe("parseSummary", () => {
-  it("会話にある元の言葉の要点だけを残す", () => {
+  it("会話にある元の言葉を持つ要点だけを残す", () => {
     const raw = JSON.stringify({
+      overview: "薬の飲み方を確かめた",
       points: [
-        { text: "薬は1日3回、食後に飲む", quote: "1日3回、毎食後に" },
-        { text: "痛みが出たら来る", quote: "痛みが出たら" },
+        {
+          text: "薬は1日3回、食後に。食べない日も少し食べてから",
+          quotes: ["1日3回、毎食後", "少し食べてから", "会話にない言葉"],
+        },
+        { text: "痛みが出たら来る", quotes: ["痛みが出たら"] },
       ],
     });
     expect(parseSummary(raw, lines)).toEqual({
       ok: true,
-      points: [{ text: "薬は1日3回、食後に飲む", quote: "1日3回、毎食後に" }],
+      summary: {
+        overview: "薬の飲み方を確かめた",
+        points: [
+          {
+            text: "薬は1日3回、食後に。食べない日も少し食べてから",
+            quotes: ["1日3回、毎食後", "少し食べてから"],
+          },
+        ],
+      },
     });
   });
 
   it("壊れたJSON・違う形は失敗にする", () => {
     expect(parseSummary("x", lines).ok).toBe(false);
-    expect(parseSummary('{"items":[]}', lines).ok).toBe(false);
+    expect(parseSummary('{"points":[]}', lines).ok).toBe(false);
   });
 
-  it("長すぎる要点・重複を捨て、上限で絞る", () => {
+  it("長すぎるものを捨て、上限で絞る", () => {
     const many = Array.from({ length: 8 }, (_, i) => ({
       text: `要点${i}`,
-      quote: i % 2 ? "次は2週間後" : "毎食後",
+      quotes: ["毎食後"],
     }));
-    const long = { text: "あ".repeat(80), quote: "毎食後" };
-    const r = parseSummary(JSON.stringify({ points: [long, ...many] }), lines);
-    expect(r.ok && r.points.map((p) => p.quote)).toEqual([
-      "毎食後",
-      "次は2週間後",
-    ]);
-    expect(r.ok && r.points.length).toBeLessThanOrEqual(MAX_SUMMARY_POINTS);
+    const r = parseSummary(
+      JSON.stringify({ overview: "あ".repeat(200), points: many }),
+      lines,
+    );
+    expect(r.ok && r.summary.overview).toBe("");
+    expect(r.ok && r.summary.points).toHaveLength(MAX_SUMMARY_POINTS);
   });
 });

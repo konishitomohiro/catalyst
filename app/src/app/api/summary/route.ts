@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     if (!result.ok) {
       return Response.json({ error: result.error }, { status: 502 });
     }
-    return Response.json({ points: result.points });
+    return Response.json(result.summary);
   } catch (e) {
     console.error(e);
     return Response.json({ error: "AIの呼び出しに失敗した" }, { status: 502 });

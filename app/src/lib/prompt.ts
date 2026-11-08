@@ -11,8 +11,12 @@ export function buildDetectionPrompt(args: {
 }): string {
   const { sender, recipient, utterance, context } = args;
   return `あなたは医療・介護の現場の会話を手伝うアシスタントです。
-${sender}（話し手）が${recipient}（聞き手）に話した発言を読み、
-${recipient}が理解するのに前提知識が必要そうな用語を見つけてください。
+${sender}（話し手）と${recipient}（聞き手）が対面で話しています。
+
+1. 今回の発言を、${sender}と${recipient}のどちらが話したかを決め、speaker に入れる。
+   ${sender}なら "sender"、${recipient}なら "recipient"。発言の中身（説明・指示か、質問・返事か）とこれまでの会話の流れから決める。
+2. ${sender}が話した発言なら、${recipient}が理解するのに前提知識が必要そうな用語を見つける。
+   ${recipient}が話した発言なら、terms は空の配列にする。
 
 対象：
 - ${recipient}が知らない可能性が高い専門用語・略語・単位
@@ -74,22 +78,26 @@ ${sender}が${recipient}に伝えようとしている文章を読み、
 ${message}`;
 }
 
-/** 履歴の要約：聞いた人（recipient）があとで見返す要点 */
+/** 履歴の要約：会話全体から、聞いた人（recipient）があとで見返す要約。lines は「職種：発言」の形 */
 export function buildSummaryPrompt(args: {
   sender: Role;
   recipient: Role;
   lines: string[];
 }): string {
   return [
-    `次は、${args.sender}が${args.recipient}に話した会話の文字起こしです。`,
-    `${args.recipient}があとで見返すための要点を、${MAX_SUMMARY_POINTS}つまで作ってください。`,
+    `次は、${args.sender}と${args.recipient}が対面で話した会話の文字起こしです。`,
+    `${args.recipient}があとで見返すための要約を作ってください。`,
+    "",
+    "作るもの：",
+    "- overview：会話全体で、何について話し、どうすることになったかを1〜2文で。",
+    `- points：あとで見返す要点を${MAX_SUMMARY_POINTS}つまで。1行ずつ言い直さず、同じ話題の発言（質問と答えなど）をまとめて1つにする。`,
     "",
     "決まり：",
     "- 会話に出たことだけを書く。会話にない説明・理由・助言・医学的な判断は足さない。",
     "- することや決まり（量・回数・時刻・日付・持ち物・連絡のしかた）を優先する。数や時刻は会話のとおりに書く。",
-    `- ${args.recipient}が分かるやさしい言葉で、1つ1文、短く。`,
-    "- 要点ごとに、元になった会話の中の言葉（quote）を、会話の表記のまま短く書き写す。",
-    "- あいさつや雑談だけの会話なら、何も返さない。",
+    `- ${args.recipient}が分かるやさしい言葉で、短く。`,
+    "- 要点ごとに、元になった会話の中の言葉（quotes）を1つ以上、会話の表記のまま短く書き写す。職種名は含めない。",
+    "- あいさつや雑談だけの会話なら、overview だけを書き、points は空にする。",
     "",
     "会話：",
     ...args.lines.map((l) => `- ${l}`),

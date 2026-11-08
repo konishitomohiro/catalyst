@@ -78,3 +78,28 @@ describe("テスト用の入力", () => {
     expect(testInputEnabled(env({ NODE_ENV: "development" }))).toBe(true);
   });
 });
+
+describe("upsertRecord と要約", () => {
+  const base = {
+    id: "a",
+    startedAt: 1,
+    endedAt: 2,
+    sender: "医師" as const,
+    recipient: "患者" as const,
+    items: [],
+    lines: ["一"],
+  };
+  const summary = { overview: "まとめ", points: [] };
+  it("会話の文字が同じなら、要約を残す", () => {
+    const list = upsertRecord([], { ...base, summary });
+    expect(upsertRecord(list, { ...base, endedAt: 3 })[0].summary).toEqual(
+      summary,
+    );
+  });
+  it("会話の文字が増えたら、要約は作り直す", () => {
+    const list = upsertRecord([], { ...base, summary });
+    expect(
+      upsertRecord(list, { ...base, lines: ["一", "二"] })[0].summary,
+    ).toBeUndefined();
+  });
+});

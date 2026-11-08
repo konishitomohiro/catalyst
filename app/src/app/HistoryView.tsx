@@ -92,11 +92,17 @@ export function HistoryView() {
         <h2 className={styles.subTitle}>
           <Furi text="{会話|かいわ}の{文字|もじ}" />
         </h2>
-        {open.lines.map((t, i) => (
-          <p key={i} className={styles.bubble}>
-            {t}
-          </p>
-        ))}
+        <div className={styles.talk}>
+          {open.lines.map((t, i) => {
+            const right = open.speakers?.[i] === "recipient";
+            return (
+              <div key={i} className={right ? styles.sayRight : styles.sayLeft}>
+                <span className={styles.sayName}>{speakerRole(open, i)}</span>
+                <p className={styles.bubble}>{t}</p>
+              </div>
+            );
+          })}
+        </div>
         <ConfirmDelete
           label="この{記録|きろく}を{消|け}す"
           asking={confirm === open.id}
@@ -244,6 +250,11 @@ function RecordSummary({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   if (r.lines.length === 0) return null;
+  // 前の形（要点だけの配列）で残っている要約は、作り直してもらう
+  const summary =
+    r.summary && !Array.isArray(r.summary) && "overview" in r.summary
+      ? r.summary
+      : undefined;
 
   async function make() {
     setBusy(true);
@@ -255,12 +266,13 @@ function RecordSummary({
         body: JSON.stringify({
           sender: r.sender,
           recipient: r.recipient,
-          lines: r.lines,
+          // 会話全体を、誰が話したかを添えて送る
+          lines: r.lines.map((l, i) => `${speakerRole(r, i)}：${l}`),
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `エラー ${res.status}`);
-      onSaved({ ...r, summary: data.points });
+      onSaved({ ...r, summary: data });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -273,23 +285,21 @@ function RecordSummary({
       <h2 className={styles.subTitle}>
         <Furi text="{要約|ようやく}" />
       </h2>
-      {r.summary ? (
-        r.summary.length === 0 ? (
-          <p className={styles.empty}>
-            <Furi text="まとめる{要点|ようてん}はありませんでした。" />
-          </p>
-        ) : (
-          <ul className={styles.summaryList}>
-            {r.summary.map((p) => (
-              <li key={p.quote}>
-                {p.text}
-                <span className={styles.quote}>「{p.quote}」</span>
-              </li>
-            ))}
-          </ul>
-        )
+      {summary ? (
+        <div className={styles.summaryBox}>
+          {summary.overview && (
+            <p className={styles.summaryOverview}>{summary.overview}</p>
+          )}
+          {summary.points.length > 0 && (
+            <ul className={styles.summaryList}>
+              {summary.points.map((p) => (
+                <li key={p.text}>{p.text}</li>
+              ))}
+            </ul>
+          )}
+        </div>
       ) : busy ? (
-        <Thinking text="{会話|かいわ}の{要点|ようてん}をまとめています" />
+        <Thinking text="{会話|かいわ}{全体|ぜんたい}をまとめています" />
       ) : (
         <button className={styles.outline} onClick={make}>
           <Icon name="summarize" />
@@ -297,11 +307,16 @@ function RecordSummary({
         </button>
       )}
       {error && <p className={styles.error}>{error}</p>}
-      {r.summary && r.summary.length > 0 && (
+      {summary && (
         <p className={styles.note}>
-          <Furi text="AIがまとめたものです。{元|もと}の{会話|かいわ}は{下|した}にあります。" />
+          <Furi text="AIが{会話|かいわ}{全体|ぜんたい}をまとめたものです。{元|もと}の{会話|かいわ}は{下|した}にあります。" />
         </p>
       )}
     </section>
   );
+}
+
+/** その行を話した職種（古い記録は話し手とみなす） */
+function speakerRole(r: HistoryRecord, i: number) {
+  return r.speakers?.[i] === "recipient" ? r.recipient : r.sender;
 }

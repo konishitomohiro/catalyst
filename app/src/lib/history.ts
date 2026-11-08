@@ -1,6 +1,7 @@
 // 会話の履歴（例/Docs/1_方向.md「会話履歴の保存」）。その端末の中だけに残す。サーバーには送らない。
 import type { Role } from "./roles";
-import type { SummaryPoint } from "./summary";
+import type { Speaker } from "./detection";
+import type { Summary } from "./summary";
 
 export type HistoryItem = {
   term: string;
@@ -20,8 +21,10 @@ export type HistoryRecord = {
   items: HistoryItem[];
   /** 会話の文字 */
   lines: string[];
+  /** 行ごとの話した人（lines と同じ順）。古い記録にはない */
+  speakers?: Speaker[];
   /** AIによる要約（「要約を作る」を押したときだけ） */
-  summary?: SummaryPoint[];
+  summary?: Summary;
 };
 
 export const HISTORY_KEY = "catalyst.history";
@@ -49,6 +52,11 @@ export function upsertRecord(
   list: HistoryRecord[],
   rec: HistoryRecord,
 ): HistoryRecord[] {
+  // 会話の途中で作った要約は、会話の文字が増えるまで残す
+  const old = list.find((r) => r.id === rec.id);
+  if (!rec.summary && old?.summary && old.lines.length === rec.lines.length) {
+    rec = { ...rec, summary: old.summary };
+  }
   return [rec, ...list.filter((r) => r.id !== rec.id)]
     .sort((a, b) => b.startedAt - a.startedAt)
     .slice(0, MAX_RECORDS);

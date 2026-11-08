@@ -8,7 +8,12 @@ export const MAX_TERMS = 5;
 /** 1つの用語の最大文字数（文をまるごと返すのを防ぐ） */
 export const MAX_TERM_LENGTH = 30;
 
+/** 発言した人。sender＝話す人（左）、recipient＝聞く人・この端末を持つ人（右） */
+export const SPEAKERS = ["sender", "recipient"] as const;
+export type Speaker = (typeof SPEAKERS)[number];
+
 export const detectionSchema = z.object({
+  speaker: z.string().optional(),
   terms: z.array(
     z.object({ term: z.string(), reading: z.string().optional() }),
   ),
@@ -18,6 +23,12 @@ export const detectionSchema = z.object({
 export const detectionJsonSchema = {
   type: "object",
   properties: {
+    speaker: {
+      type: "string",
+      enum: ["sender", "recipient"],
+      description:
+        "今回の発言をした人。話し手なら sender、聞き手なら recipient",
+    },
     terms: {
       type: "array",
       items: {
@@ -37,7 +48,7 @@ export const detectionJsonSchema = {
       },
     },
   },
-  required: ["terms"],
+  required: ["speaker", "terms"],
 } as const;
 
 export type DetectedTerm = {
@@ -47,7 +58,8 @@ export type DetectedTerm = {
 };
 
 export type DetectionResult =
-  { ok: true; terms: DetectedTerm[] } | { ok: false; error: string };
+  | { ok: true; speaker: Speaker; terms: DetectedTerm[] }
+  | { ok: false; error: string };
 
 const KANJI = /[㐀-鿿々〆]/;
 const KANA_ONLY = /^[ぁ-ゟァ-ヿー・\s]+$/;
@@ -79,6 +91,9 @@ export function parseDetection(
   const parsed = detectionSchema.safeParse(json);
   if (!parsed.success) return { ok: false, error: "決めた形式と違う" };
 
+  // 分からなければ話し手とみなす（言葉を見落とさない側に倒す）
+  const speaker: Speaker =
+    parsed.data.speaker === "recipient" ? "recipient" : "sender";
   const text = normalize(utterance);
   const seen = new Set<string>();
   const terms: DetectedTerm[] = [];
@@ -90,5 +105,7 @@ export function parseDetection(
     seen.add(key);
     terms.push({ term, reading: cleanReading(term, t.reading) });
   }
-  return { ok: true, terms: terms.slice(0, MAX_TERMS) };
+  // 聞き手が話した発言は、聞き手が知っている言葉なので出さない（コードが決める。ルール4）
+  if (speaker === "recipient") return { ok: true, speaker, terms: [] };
+  return { ok: true, speaker, terms: terms.slice(0, MAX_TERMS) };
 }

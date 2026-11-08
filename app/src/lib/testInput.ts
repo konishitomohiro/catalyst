@@ -27,7 +27,9 @@ export const TALK_SCRIPTS: TestScript[] = [
     lines: [
       "今日から痛み止めを変えますね。NSAIDsを毎食後に服用してください",
       "痛みが強いときは、こちらを頓服で使ってください",
+      "すみません、エヌセイズって何ですか",
       "痛みや熱を抑えるお薬の仲間のことです",
+      "わかりました。ご飯を食べなかった日はどうすればいいですか",
       "NSAIDsは胃が荒れやすいので、空腹では飲まないでください",
     ],
   },
@@ -43,6 +45,8 @@ export const TALK_SCRIPTS: TestScript[] = [
     recipient: "介護者",
     lines: [
       "褥瘡の処置には、この軟膏を1日2回塗ってください",
+      "朝と夜でいいですか",
+      "はい、朝と夜で大丈夫です",
       "嚥下機能が落ちているので、汁物にはとろみをつけてください",
       "夜間に容態が急変した場合は連絡してください",
     ],
@@ -131,8 +135,20 @@ export function sampleHistory(now = Date.now()): HistoryRecord[] {
       lines: [
         "血圧は落ち着いていますね",
         "NSAIDsを毎食後に服用してください",
+        "ご飯を食べなかった日はどうすればいいですか",
+        "そのときも何か少し食べてから飲んでください",
         "症状が出たときだけ頓服で使ってください",
+        "わかりました",
         "次は2週間後に来てください",
+      ],
+      speakers: [
+        "sender",
+        "sender",
+        "recipient",
+        "sender",
+        "sender",
+        "recipient",
+        "sender",
       ],
     },
     {
@@ -156,8 +172,11 @@ export function sampleHistory(now = Date.now()): HistoryRecord[] {
       ],
       lines: [
         "褥瘡の処置には、この軟膏を1日2回塗ってください",
+        "朝と夜でいいですか",
+        "はい、朝と夜で大丈夫です",
         "夜間に容態が急変した場合は連絡してください",
       ],
+      speakers: ["sender", "recipient", "sender", "sender"],
     },
     {
       id: "sample-3",

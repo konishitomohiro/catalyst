@@ -13,6 +13,7 @@ describe("parseDetection", () => {
       ),
     ).toEqual({
       ok: true,
+      speaker: "sender",
       terms: [{ term: "NSAIDs" }, { term: "毎食後", reading: "まいしょくご" }],
     });
   });
@@ -37,7 +38,11 @@ describe("parseDetection", () => {
       ]),
       "NSAIDsを飲んでください",
     );
-    expect(r).toEqual({ ok: true, terms: [{ term: "NSAIDs" }] });
+    expect(r).toEqual({
+      ok: true,
+      speaker: "sender",
+      terms: [{ term: "NSAIDs" }],
+    });
   });
 
   it("全角・半角や空白の違いは同じ語とみなし、重複を除く", () => {
@@ -45,7 +50,11 @@ describe("parseDetection", () => {
       raw([t("14Fr"), t("１４ Fr"), t(" ")]),
       "チューブは14Frで",
     );
-    expect(r).toEqual({ ok: true, terms: [{ term: "14Fr" }] });
+    expect(r).toEqual({
+      ok: true,
+      speaker: "sender",
+      terms: [{ term: "14Fr" }],
+    });
   });
 
   it("件数の上限を守る", () => {
@@ -69,5 +78,21 @@ describe("cleanReading", () => {
     expect(cleanReading("褥瘡", "床ずれのこと")).toBeUndefined();
     expect(cleanReading("褥瘡", "jokusou")).toBeUndefined();
     expect(cleanReading("褥瘡", "")).toBeUndefined();
+  });
+
+  it("聞き手が話した発言では、言葉を返さない", () => {
+    const r = parseDetection(
+      JSON.stringify({ speaker: "recipient", terms: [t("頓服", "とんぷく")] }),
+      "頓服ってなんですか",
+    );
+    expect(r).toEqual({ ok: true, speaker: "recipient", terms: [] });
+  });
+
+  it("speaker が分からなければ話し手とみなす", () => {
+    const r = parseDetection(
+      JSON.stringify({ speaker: "?", terms: [] }),
+      "なにか",
+    );
+    expect(r.ok && r.speaker).toBe("sender");
   });
 });
