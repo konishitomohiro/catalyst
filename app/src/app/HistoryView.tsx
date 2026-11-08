@@ -15,7 +15,7 @@ import { Furi, Term, Word } from "./Furi";
 import { Icon } from "./Icon";
 import { useTestInput } from "./TestFlag";
 import { Thinking } from "./Thinking";
-import { ASK, kindOf } from "@/lib/termKind";
+import { listNote } from "@/lib/termKind";
 import { sampleHistory } from "@/lib/testInput";
 import styles from "./app.module.css";
 
@@ -79,9 +79,9 @@ export function HistoryView() {
                   >
                     <Term term={it.term} reading={it.reading} />
                   </span>
-                  {ASK[kindOf(it)].list && (
+                  {listNote(it) && (
                     <span className={styles.amountAsk}>
-                      <Furi text={ASK[kindOf(it)].list ?? ""} />
+                      <Furi text={listNote(it) ?? ""} />
                     </span>
                   )}
                   <span className={styles.srOnly}>

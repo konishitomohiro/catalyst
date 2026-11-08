@@ -167,6 +167,24 @@
       "mustInclude": [["抗がん剤"]],
       "mustExclude": [],
       "note": "治療の目的・期間が言われていない"
+    },
+    {
+      "id": "diag-stage",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "胃がんで、ステージ3です",
+      "mustInclude": [["ステージ3", "ステージ"]],
+      "mustExclude": [],
+      "note": "ステージの意味が言われていない（2026-11-08、Tomo）"
+    },
+    {
+      "id": "prognosis",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "5年生存率は40%くらいです",
+      "mustInclude": [["5年生存率", "生存率"]],
+      "mustExclude": [],
+      "note": "予後の意味・捉え方"
     }
   ]
 }

@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { normalize } from "./transcriptCheck";
 import { acceptCorrection } from "./transcriptFix";
-import { decideKind, type Kind } from "./termKind";
+import { decideKind, decideMissing, type Kind, type Missing } from "./termKind";
 
 /** 1回の発言から受け取る用語の最大数 */
 export const MAX_TERMS = 5;
@@ -22,6 +22,7 @@ export const detectionSchema = z.object({
       term: z.string(),
       reading: z.string().optional(),
       kind: z.string().optional(),
+      missing: z.array(z.string()).optional(),
     }),
   ),
 });
@@ -57,12 +58,36 @@ export const detectionJsonSchema = {
           },
           kind: {
             type: "string",
-            enum: ["word", "amount", "test", "result", "treatment"],
+            enum: [
+              "word",
+              "amount",
+              "test",
+              "result",
+              "treatment",
+              "prognosis",
+            ],
             description:
-              "word＝分からない言葉、amount＝決まり方の分からない数や量、test＝目的の言われていない検査、result＝意味の言われていない結果・診断、treatment＝目的や期間の言われていない治療",
+              "word＝分からない言葉、amount＝決まり方の分からない数や量、test＝検査、result＝結果・診断（病名・ステージを含む）、treatment＝治療（薬・手術・処置）、prognosis＝見通し（予後）",
+          },
+          missing: {
+            type: "array",
+            items: {
+              type: "string",
+              enum: [
+                "purpose",
+                "meaning",
+                "duration",
+                "caution",
+                "side_effects",
+                "options",
+                "outlook",
+              ],
+            },
+            description:
+              "test・result・treatment・prognosis のとき、まだ話されていない点。purpose＝目的、meaning＝意味、duration＝期間・スケジュール、caution＝気をつけること、side_effects＝副作用の種類と重さ、options＝ほかの方法と良い点・悪い点、outlook＝これからの見通し。word・amount では空",
           },
         },
-        required: ["term", "reading", "kind"],
+        required: ["term", "reading", "kind", "missing"],
       },
     },
   },
@@ -75,6 +100,8 @@ export type DetectedTerm = {
   reading?: string;
   /** 種類（聞き方を変える）。コードが decideKind で決める */
   kind?: Kind;
+  /** 検査・結果・治療・見通しで、まだ話されていない点 */
+  missing?: Missing[];
 };
 
 export type DetectionResult =
@@ -137,6 +164,9 @@ export function parseDetection(
       reading: cleanReading(term, t.reading),
       kind: decideKind(term, t.kind),
     });
+    const last = terms[terms.length - 1];
+    const missing = decideMissing(last.kind ?? "word", t.missing);
+    if (missing.length > 0) last.missing = missing;
   }
   // 聞き手が話した発言は、聞き手が知っている言葉なので出さない（コードが決める。ルール4）
   if (speaker === "recipient")

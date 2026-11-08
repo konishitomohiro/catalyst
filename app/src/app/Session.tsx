@@ -9,7 +9,7 @@ import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
 import { Icon, ROLE_ICON } from "./Icon";
 import { Thinking } from "./Thinking";
-import { ASK, kindOf } from "@/lib/termKind";
+import { ASK, kindOf, listNote } from "@/lib/termKind";
 import { squeezeSpaces } from "@/lib/transcriptFix";
 import { TestInput } from "./TestInput";
 import { TALK_SCRIPTS } from "@/lib/testInput";
@@ -36,8 +36,6 @@ export function Session({
 }) {
   const testInput = useTestInput();
   const [startedAt] = useState(() => Date.now());
-  /** AIが見つけた言葉（会話の文字の中で印をつける） */
-  const [found, setFound] = useState<string[]>([]);
   const [state, dispatch] = useReducer(sessionReducer, initialSession);
   const [lines, setLines] = useState<string[]>([]);
   const [showAll, setShowAll] = useState(false);
@@ -90,10 +88,6 @@ export function Session({
         typeof data.corrected === "string" ? data.corrected : null;
       if (corrected) setLineAt(index, corrected, linesRef.current[index]);
       const terms = data.terms as DetectedTerm[];
-      setFound((prev) => [
-        ...prev,
-        ...terms.map((t) => t.term).filter((t) => t && !prev.includes(t)),
-      ]);
       dispatch({ type: "detected", terms, quote: corrected ?? utterance });
     } catch (e) {
       setAiError((e as Error).message);
@@ -150,13 +144,16 @@ export function Session({
       endedAt: Date.now(),
       sender,
       recipient,
-      items: state.list.map(({ term, reading, checked, quote, kind }) => ({
-        term,
-        reading,
-        checked,
-        quote,
-        kind,
-      })),
+      items: state.list.map(
+        ({ term, reading, checked, quote, kind, missing }) => ({
+          term,
+          reading,
+          checked,
+          quote,
+          kind,
+          missing,
+        }),
+      ),
       lines,
       speakers,
       originals,
@@ -180,6 +177,14 @@ export function Session({
   }, [state.lastAnswer]);
 
   const roleLabel = (r: Role) => <Word word={r} reading={ROLE_READING[r]} />;
+  // 印は答えに合わせる：まだ答えていない・「いいえ」→ 強い印、聞けた → 薄い印、「はい」→ 印なし
+  const marks = {
+    strong: [
+      ...state.pending.map((p) => p.term),
+      ...state.list.filter((x) => !x.checked).map((x) => x.term),
+    ],
+    soft: state.list.filter((x) => x.checked).map((x) => x.term),
+  };
   const shownLines = showAll ? lines : lines.slice(-2);
 
   return (
@@ -256,9 +261,9 @@ export function Session({
                         <span className={styles.rowTerm}>
                           <Term term={item.term} reading={item.reading} />
                         </span>
-                        {ASK[kindOf(item)].list && (
+                        {listNote(item) && (
                           <span className={styles.amountAsk}>
-                            <Furi text={ASK[kindOf(item)].list ?? ""} />
+                            <Furi text={listNote(item) ?? ""} />
                           </span>
                         )}
                         {item.quote && (
@@ -298,7 +303,7 @@ export function Session({
                     )
                   }
                 >
-                  <Marked text={t} terms={found} />
+                  <Marked text={t} strong={marks.strong} soft={marks.soft} />
                 </button>
                 {originals[at] && (
                   <button
@@ -524,19 +529,31 @@ export function Session({
   );
 }
 
-/** 会話の文字の中で、AIが見つけた言葉に印をつける（色と下線の両方で示す） */
-function Marked({ text, terms }: { text: string; terms: string[] }) {
-  const hits = terms.filter((t) => text.includes(t));
+/** 会話の文字の中で、言葉に印をつける（色と下線の両方で示す）。soft は聞けた言葉（下線だけ） */
+function Marked({
+  text,
+  strong,
+  soft,
+}: {
+  text: string;
+  strong: string[];
+  soft: string[];
+}) {
+  const hits = [...strong, ...soft].filter((t) => t && text.includes(t));
   if (hits.length === 0) return <>{text}</>;
-  const esc = hits
+  const esc = [...new Set(hits)]
     .sort((a, b) => b.length - a.length)
     .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const parts = text.split(new RegExp(`(${esc.join("|")})`));
   return (
     <>
       {parts.map((p, i) =>
-        hits.includes(p) ? (
+        strong.includes(p) ? (
           <mark key={i} className={styles.mark}>
+            {p}
+          </mark>
+        ) : soft.includes(p) ? (
+          <mark key={i} className={styles.markSoft}>
             {p}
           </mark>
         ) : (

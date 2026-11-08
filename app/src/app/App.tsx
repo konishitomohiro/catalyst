@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ROLE_READING, ROLES, type Role } from "@/lib/roles";
-import { Compose } from "./Compose";
 import { Furi, Word } from "./Furi";
 import { Icon, ROLE_ICON } from "./Icon";
 import { HistoryView } from "./HistoryView";
@@ -13,13 +12,13 @@ import { TestFlag, useTestInput } from "./TestFlag";
 import { TopBar } from "./TopBar";
 import styles from "./app.module.css";
 
-/** 使い方：会話を聞く（伝える最中）か、伝える前に確かめるか */
-type Mode = "talk" | "compose";
+type Start = { sender: Role; recipient: Role; id: string };
 
-type Start = { mode: Mode; sender: Role; recipient: Role; id: string };
-
-/** 下のメニュー（例/Docs/4_デザイン.md「刷新の方針」） */
-type Tab = "home" | "talk" | "history";
+/**
+ * 下のメニュー。会話していないときは「会話」で始める画面、会話中は会話の画面を出す
+ * （ホームと会話を1つにまとめた。2026-11-08、Tomo）
+ */
+type Tab = "talk" | "history";
 
 export function App({ testInput = false }: { testInput?: boolean }) {
   return (
@@ -32,44 +31,18 @@ export function App({ testInput = false }: { testInput?: boolean }) {
 }
 
 function Shell() {
-  const [tab, setTab] = useState<Tab>("home");
+  const [tab, setTab] = useState<Tab>("talk");
   const [active, setActive] = useState<Start | null>(null);
-  const exit = () => {
-    setActive(null);
-    setTab("home");
-  };
   return (
     <>
-      {/* 会話はメニューで別の画面に移っても続ける（聞き取りも止めない） */}
+      {/* 会話はメニューで履歴に移っても続ける（聞き取りも止めない） */}
       {active && (
         <div hidden={tab !== "talk"}>
-          {active.mode === "talk" ? (
-            <Session key={active.id} {...active} onExit={exit} />
-          ) : (
-            <Compose key={active.id} {...active} onExit={exit} />
-          )}
+          <Session key={active.id} {...active} onExit={() => setActive(null)} />
         </div>
       )}
-      {tab === "home" && (
-        <Home
-          onStart={(s) => {
-            setActive({ ...s, id: crypto.randomUUID() });
-            setTab("talk");
-          }}
-          busy={active !== null}
-          onResume={() => setTab("talk")}
-        />
-      )}
       {tab === "talk" && !active && (
-        <main className={styles.page}>
-          <TopBar title="{会話|かいわ}" />
-          <p className={styles.empty}>
-            <Furi text="{会話|かいわ}はまだ{始|はじ}まっていません。ホームで{話|はな}す{人|ひと}と{聞|き}く{人|ひと}を{選|えら}んで{始|はじ}めます。" />
-          </p>
-          <button className={styles.primary} onClick={() => setTab("home")}>
-            <Furi text="ホームへ" />
-          </button>
-        </main>
+        <Home onStart={(s) => setActive({ ...s, id: crypto.randomUUID() })} />
       )}
       {tab === "history" && <HistoryView />}
       <BottomNav tab={tab} onChange={setTab} live={active !== null} />
@@ -78,7 +51,6 @@ function Shell() {
 }
 
 const TABS: { tab: Tab; label: string; icon: string }[] = [
-  { tab: "home", label: "ホーム", icon: "home" },
   { tab: "talk", label: "{会話|かいわ}", icon: "forum" },
   { tab: "history", label: "{履歴|りれき}", icon: "history" },
 ];
@@ -112,37 +84,15 @@ function BottomNav({
   );
 }
 
-const MODES: { mode: Mode; label: string; desc: string }[] = [
-  {
-    mode: "talk",
-    label: "{会話|かいわ}を{聞|き}く",
-    desc: "{聞|き}く{人|ひと}の{端末|たんまつ}で{会話|かいわ}を{聞|き}き、{分|わ}かりにくそうな{言葉|ことば}をそっと{確|たし}かめます",
-  },
-  {
-    mode: "compose",
-    label: "{伝|つた}える{前|まえ}に{確|たし}かめる",
-    desc: "{指示|しじ}や{説明|せつめい}を{書|か}くと、{相手|あいて}が{分|わ}からなそうな{点|てん}を{挙|あ}げます",
-  },
-];
-
-/** ホーム：使い方と、だれとだれが話すかを選ぶ */
-function Home({
-  onStart,
-  busy,
-  onResume,
-}: {
-  onStart: (s: Omit<Start, "id">) => void;
-  busy: boolean;
-  onResume: () => void;
-}) {
-  const [mode, setMode] = useState<Mode>("talk");
+/** 会話を始める画面：だれとだれが話すかを選ぶ（使い方は「会話を聞く」だけ。2026-11-08、Tomo） */
+function Home({ onStart }: { onStart: (s: Omit<Start, "id">) => void }) {
   const [showSettings, setShowSettings] = useState(false);
   const testInput = useTestInput();
   const [sender, setSender] = useState<Role>("医師");
   const [recipient, setRecipient] = useState<Role>("患者");
   return (
     <main className={styles.page}>
-      <TopBar title="どう{使|つか}いますか">
+      <TopBar title="だれと{話|はな}しますか">
         <button
           className={styles.round}
           aria-label="表示の設定"
@@ -153,78 +103,27 @@ function Home({
         </button>
       </TopBar>
       {showSettings && <SettingsPanel />}
-      {busy && (
-        <p className={styles.resume}>
-          <Furi text="{会話|かいわ}が{続|つづ}いています。" />
-          <button className={styles.textButton} onClick={onResume}>
-            <Furi text="{会話|かいわ}に{戻|もど}る" />
-          </button>
-        </p>
-      )}
-      <fieldset className={styles.roles}>
-        <legend className={styles.srOnly}>
-          <Furi text="{使|つか}い{方|かた}" />
-        </legend>
-        <div className={styles.modes}>
-          {MODES.map((m) => (
-            <label
-              key={m.mode}
-              className={m.mode === mode ? styles.modeOn : styles.mode}
-            >
-              <input
-                type="radio"
-                name="mode"
-                checked={m.mode === mode}
-                onChange={() => setMode(m.mode)}
-              />
-              <span className={styles.modeLabel}>
-                <span>
-                  <Furi text={m.label} />
-                </span>
-                <span className={styles.modeCheck}>
-                  {m.mode === mode && <Icon name="check_circle" fill />}
-                </span>
-              </span>
-
-              {m.mode === mode && (
-                <span className={styles.modeDesc}>
-                  <Furi text={m.desc} />
-                </span>
-              )}
-            </label>
-          ))}
-        </div>
-      </fieldset>
       <RolePicker
         name="sender"
-        label={
-          mode === "talk"
-            ? "{話|はな}す{人|ひと}"
-            : "{書|か}く{人|ひと}（この{端末|たんまつ}を{使|つか}う{人|ひと}）"
-        }
+        label="{話|はな}す{人|ひと}"
         value={sender}
         onChange={setSender}
       />
       <RolePicker
         name="recipient"
-        label={
-          mode === "talk"
-            ? "{聞|き}く{人|ひと}（この{端末|たんまつ}を{持|も}つ{人|ひと}）"
-            : "{伝|つた}える{相手|あいて}"
-        }
+        label="{聞|き}く{人|ひと}（この{端末|たんまつ}を{持|も}つ{人|ひと}）"
         value={recipient}
         onChange={setRecipient}
       />
       <button
         className={styles.primary}
-        disabled={busy}
-        onClick={() => onStart({ mode, sender, recipient })}
+        onClick={() => onStart({ sender, recipient })}
       >
-        <Furi text="はじめる" />
-        <Icon name="arrow_forward" />
+        <Icon name="mic" />
+        <Furi text="{会話|かいわ}を{始|はじ}める" />
       </button>
       <p className={styles.note}>
-        <Furi text="{試作|しさく}です。{話|はな}したり{書|か}いたりした{内容|ないよう}は、{文字|もじ}にするためと{言葉|ことば}を{見|み}つけるために、{外|そと}のサービスに{送|おく}られます。{架空|かくう}の{内容|ないよう}で{試|ため}せます。" />
+        <Furi text="{試作|しさく}です。{話|はな}した{内容|ないよう}は、{文字|もじ}にするためと{言葉|ことば}を{見|み}つけるために、{外|そと}のサービスに{送|おく}られます。{架空|かくう}の{内容|ないよう}で{試|ため}せます。" />
       </p>
       {testInput && (
         <p className={styles.note}>

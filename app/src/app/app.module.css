@@ -1724,3 +1724,9 @@
 .fixNote .material-symbols-outlined {
   font-size: 1rem;
 }
+.markSoft {
+  background: none;
+  color: inherit;
+  text-decoration: underline 1px var(--orange);
+  text-underline-offset: 3px;
+}
