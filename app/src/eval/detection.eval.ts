@@ -75,16 +75,19 @@ describe.skipIf(missing.length > 0)(
       expect(r.ok, r.ok ? "" : r.error).toBe(true);
       if (!r.ok) return;
       const terms = r.terms.map((t) => t.term);
-      const j = judge(c, terms);
+      const j = judge(c, terms, r.terms);
       results.push({
         id: c.id,
         pass: j.pass,
-        terms,
+        terms: r.terms.map((t) =>
+          t.missing?.length ? `${t.term}（${t.missing.join("・")}）` : t.term,
+        ),
         why: [
           j.missing.length
             ? `出なかった：${j.missing.map((g) => g.join("/")).join("、")}`
             : "",
           j.unexpected.length ? `出てしまった：${j.unexpected.join("、")}` : "",
+          j.pointIssues.join("、"),
         ]
           .filter(Boolean)
           .join(" "),

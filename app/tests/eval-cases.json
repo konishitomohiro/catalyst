@@ -185,6 +185,22 @@
       "mustInclude": [["5年生存率", "生存率"]],
       "mustExclude": [],
       "note": "予後の意味・捉え方"
+    },
+    {
+      "id": "treatment-corset",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "コルセットを2ヶ月間、生活する際につけてください",
+      "mustInclude": [["コルセット"]],
+      "mustExclude": [],
+      "points": [
+        {
+          "term": "コルセット",
+          "mustHave": ["purpose", "caution"],
+          "mustNotHave": ["duration", "side_effects", "options"]
+        }
+      ],
+      "note": "患者が気になるのは、つける理由と気をつけること。期間は言われている（2026-11-08、Tomo）"
     }
   ]
 }

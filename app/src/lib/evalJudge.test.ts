@@ -32,6 +32,7 @@ describe("judge", () => {
       pass: false,
       missing: [["NSAIDs"]],
       unexpected: [],
+      pointIssues: [],
     });
   });
 
@@ -40,6 +41,7 @@ describe("judge", () => {
       pass: false,
       missing: [],
       unexpected: ["毎食後"],
+      pointIssues: [],
     });
   });
 
@@ -76,5 +78,28 @@ describe("tests/premise-cases.json", () => {
         expect(sameTerm(c.message, e), `${c.id}: ${e}`).toBe(true);
       }
     }
+  });
+
+  it("並べる点（missing）の条件も見る", () => {
+    const c = {
+      ...base,
+      utterance: "コルセットを2ヶ月間つけてください",
+      mustInclude: [["コルセット"]],
+      mustExclude: [],
+      points: [
+        {
+          term: "コルセット",
+          mustHave: ["purpose", "caution"],
+          mustNotHave: ["duration", "side_effects"],
+        },
+      ],
+    };
+    const ok = [{ term: "コルセット", missing: ["purpose", "caution"] }];
+    expect(judge(c, ["コルセット"], ok).pass).toBe(true);
+    const ng = [{ term: "コルセット", missing: ["purpose", "side_effects"] }];
+    expect(judge(c, ["コルセット"], ng).pointIssues).toEqual([
+      "コルセットに足りない点：caution",
+      "コルセットに余計な点：side_effects",
+    ]);
   });
 });
