@@ -7,8 +7,7 @@ import { saveRecord } from "@/lib/history";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
-import { Icon, ROLE_ICON } from "./Icon";
-import { SizeSwitch } from "./Settings";
+import { Icon } from "./Icon";
 import { TestInput } from "./TestInput";
 import { TALK_SCRIPTS } from "@/lib/testInput";
 import { useTestInput } from "./TestFlag";
@@ -131,8 +130,9 @@ export function Session({
     <div className={styles.screen}>
       <div className={styles.paper}>
         <div className={styles.sessionHead}>
+          {/* 誰から誰への会話かは、ここ1か所で示す */}
           <h1 className={styles.topTitle}>
-            <Furi text="{会話|かいわ}" />
+            {roleLabel(sender)} → {roleLabel(recipient)}
           </h1>
           <button
             className={styles.endButton}
@@ -145,36 +145,23 @@ export function Session({
               }
             }}
           >
-            <Icon name="stop_circle" />
             <Furi text="{終|お}える" />
           </button>
-          <SizeSwitch />
         </div>
-        <p className={styles.pairChip}>
-          <Icon name={ROLE_ICON[sender]} className={styles.inlineIcon} />
-          {roleLabel(sender)}
-          <Icon name="arrow_forward" className={styles.inlineIcon} />
-          <Icon name={ROLE_ICON[recipient]} className={styles.inlineIcon} />
-          {roleLabel(recipient)}
-        </p>
         {/* 質問リスト：画面上部。上ほど見えにくいので、まだ聞いていない言葉を下に置く */}
-        <section className={styles.listArea} aria-label="分からなかった言葉">
-          <h2 className={styles.listTitle}>
-            <Icon name="edit_note" fill className={styles.orangeIcon} />
-            <Furi text="{聞|き}いておきたいこと" />
-            {state.list.some((x) => !x.checked) && (
-              <span className={styles.countBadge}>
-                <Furi
-                  text={`{残|のこ}り ${state.list.filter((x) => !x.checked).length}`}
-                />
-              </span>
-            )}
-          </h2>
-          {state.list.length === 0 ? (
-            <p className={styles.empty}>
-              <Furi text="{分|わ}からなかった{言葉|ことば}が、ここに{並|なら}びます。{聞|き}けたら{印|しるし}をつけられます。" />
-            </p>
-          ) : (
+        {/* 言葉が入るまでは出さない（段階的に見せる。原則3） */}
+        {state.list.length > 0 && (
+          <section className={styles.listArea} aria-label="分からなかった言葉">
+            <h2 className={styles.listTitle}>
+              <Furi text="{聞|き}いておきたいこと" />
+              {state.list.some((x) => !x.checked) && (
+                <span className={styles.countBadge}>
+                  <Furi
+                    text={`{残|のこ}り ${state.list.filter((x) => !x.checked).length}`}
+                  />
+                </span>
+              )}
+            </h2>
             <ol ref={listRef} className={styles.list}>
               {state.list.map((item) => {
                 const flash =
@@ -218,8 +205,8 @@ export function Session({
                 );
               })}
             </ol>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* 会話の文字：最初は直近の2行だけ（原則3） */}
         <section className={styles.talk}>
@@ -228,12 +215,6 @@ export function Session({
               key={lines.length - shownLines.length + i}
               className={styles.say}
             >
-              <span className={styles.who}>
-                <span className={styles.avatar}>
-                  <Icon name={ROLE_ICON[sender]} />
-                </span>
-                {roleLabel(sender)}
-              </span>
               <p className={styles.bubble}>
                 <Marked text={t} terms={found} />
               </p>
@@ -241,12 +222,6 @@ export function Session({
           ))}
           {speech.interim && (
             <div className={styles.say}>
-              <span className={styles.who}>
-                <span className={styles.avatar}>
-                  <Icon name={ROLE_ICON[sender]} />
-                </span>
-                {roleLabel(sender)}
-              </span>
               <p className={`${styles.bubble} ${styles.interim}`}>
                 {speech.interim}
               </p>

@@ -11,7 +11,7 @@ import {
 import { ROLE_READING } from "@/lib/roles";
 import { TopBar } from "./TopBar";
 import { Furi, Term, Word } from "./Furi";
-import { Icon, ROLE_ICON } from "./Icon";
+import { Icon } from "./Icon";
 import styles from "./app.module.css";
 
 const fmtDate = (ms: number) =>
@@ -138,10 +138,8 @@ export function HistoryView() {
                       {r.items.map((x) => x.term).join("、")}
                     </span>
                   )}
-                  <span className={styles.smallPrimary}>
-                    <Furi text="この{記録|きろく}を{見|み}る" />
-                    <Icon name="arrow_forward" />
-                  </span>
+                  {/* カード全体が押せる。目印は右の矢印だけ（原則1：主ボタンを並べない） */}
+                  <Icon name="chevron_right" className={styles.cardChevron} />
                 </button>
               </li>
             );
@@ -168,25 +166,12 @@ export function HistoryView() {
 function RecordHead({ r }: { r: HistoryRecord }) {
   return (
     <span className={styles.recordHead}>
-      <span className={styles.recordDate}>
-        <Icon name="calendar_today" className={styles.inlineIcon} />
-        {fmtDate(r.startedAt)}
-      </span>
       <span className={styles.pairBox}>
-        <span className={styles.pairRole}>
-          <span className={styles.avatar}>
-            <Icon name={ROLE_ICON[r.sender]} />
-          </span>
-          <Word word={r.sender} reading={ROLE_READING[r.sender]} />
-        </span>
-        <Icon name="arrow_forward" className={styles.inlineIcon} />
-        <span className={styles.pairRole}>
-          <span className={styles.avatarWarm}>
-            <Icon name={ROLE_ICON[r.recipient]} />
-          </span>
-          <Word word={r.recipient} reading={ROLE_READING[r.recipient]} />
-        </span>
+        <Word word={r.sender} reading={ROLE_READING[r.sender]} />
+        {" → "}
+        <Word word={r.recipient} reading={ROLE_READING[r.recipient]} />
       </span>
+      <span className={styles.recordDate}>{fmtDate(r.startedAt)}</span>
     </span>
   );
 }

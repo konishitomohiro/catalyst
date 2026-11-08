@@ -5,7 +5,7 @@ import { MAX_MESSAGE } from "@/lib/limits";
 import { splitByQuotes, type PremisePoint } from "@/lib/premise";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { Furi, Word } from "./Furi";
-import { Icon, ROLE_ICON } from "./Icon";
+import { Icon } from "./Icon";
 import { TopBar } from "./TopBar";
 import { TestInput } from "./TestInput";
 import { COMPOSE_SCRIPTS } from "@/lib/testInput";
@@ -76,13 +76,6 @@ export function Compose({
         onBack={() => (message.trim() ? setConfirmExit(true) : onExit())}
         backLabel="ホームにもどる"
       />
-      <p className={styles.pairChip}>
-        <Icon name={ROLE_ICON[sender]} className={styles.inlineIcon} />
-        {role(sender)}
-        <Icon name="arrow_forward" className={styles.inlineIcon} />
-        <Icon name={ROLE_ICON[recipient]} className={styles.inlineIcon} />
-        {role(recipient)}
-      </p>
       {confirmExit && (
         <div className={styles.confirmBox} role="alertdialog">
           <Furi text="ホームに{戻|もど}ると、{書|か}いた{文章|ぶんしょう}が{消|き}えます。" />

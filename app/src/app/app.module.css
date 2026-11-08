@@ -1491,3 +1491,29 @@
   display: flex;
   gap: var(--gap);
 }
+
+/* 整理（DESIGN_BASE：主ボタンは1つ・色は3つ・説明は必要なときだけ） */
+.recordCard {
+  position: relative;
+}
+.cardChevron {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+}
+.pairBox {
+  font-weight: 700;
+  color: var(--text);
+}
+.recordDate {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.endButton {
+  background: transparent !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
