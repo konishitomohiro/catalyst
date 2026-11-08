@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-primary": "#ffffff", "on-primary-fixed": "#001b3e", "error": "#ba1a1a", "surface-bright": "#f9f9f6", "primary-container": "#1a5fb4", "surface-dim": "#dadad7", "primary-fixed-dim": "#aac7ff", "on-primary-container": "#cbdcff", "tertiary-fixed-dim": "#ffb68a", "on-tertiary-fixed": "#321300", "surface-container-low": "#f4f4f1", "primary": "#004790", "surface": "#f9f9f6", "on-error-container": "#93000a", "error-container": "#ffdad6", "inverse-surface": "#2f312f", "on-background": "#1a1c1b", "on-tertiary-fixed-variant": "#743500", "on-primary-fixed-variant": "#00458d", "on-secondary": "#ffffff", "tertiary-container": "#9b4900", "secondary": "#904d00", "surface-variant": "#e2e3e0", "secondary-container": "#fe932c", "on-tertiary": "#ffffff", "inverse-primary": "#aac7ff", "on-surface": "#1a1c1b", "on-secondary-fixed": "#2f1500", "surface-container-lowest": "#ffffff", "background": "#f9f9f6", "on-secondary-container": "#663500", "surface-tint": "#175db2", "primary-fixed": "#d6e3ff", "outline-variant": "#c2c6d4", "on-error": "#ffffff", "surface-container-highest": "#e2e3e0", "secondary-fixed-dim": "#ffb77d", "outline": "#727783", "on-tertiary-container": "#ffd3b9", "secondary-fixed": "#ffdcc3", "tertiary": "#773600", "on-secondary-fixed-variant": "#6e3900", "tertiary-fixed": "#ffdbc8", "on-surface-variant": "#424752", "surface-container": "#eeeeeb", "inverse-on-surface": "#f1f1ee", "surface-container-high": "#e8e8e5" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1.125rem", "space-sm": "0.75rem", "margin": "1rem", "gutter": "1rem", "margin-desktop": "2.5rem", "space-lg": "1.5rem", "gutter-desktop": "2rem", "space-xl": "2.25rem", "space-2xl": "3rem", "gutter-tablet": "1.5rem", "space-xs": "0.375rem", "margin-tablet": "1.5rem" }, "fontFamily": { "headline-md": ["Noto Sans JP", "Noto Sans"], "ruby": ["Noto Sans JP", "Noto Sans"], "label-lg": ["Noto Sans JP", "Noto Sans"], "label-sm": ["Noto Sans JP", "Noto Sans"], "body-lg": ["Noto Sans JP", "Noto Sans"], "headline-lg": ["Noto Sans JP", "Noto Sans"], "headline-lg-mobile": ["Noto Sans JP", "Noto Sans"], "body-md": ["Noto Sans JP", "Noto Sans"], "body-sm": ["Noto Sans JP", "Noto Sans"], "label-md": ["Noto Sans JP", "Noto Sans"], "headline-sm": ["Noto Sans JP", "Noto Sans"] }, "fontSize": { "headline-md": ["1.5rem", { "lineHeight": "2.4rem", "fontWeight": "700" }], "ruby": ["0.6875rem", { "lineHeight": "1rem", "fontWeight": "500" }], "label-lg": ["1.125rem", { "lineHeight": "1.8rem", "fontWeight": "700" }], "label-sm": ["0.875rem", { "lineHeight": "1.4rem", "fontWeight": "500" }], "body-lg": ["1.25rem", { "lineHeight": "2.2rem", "fontWeight": "700" }], "headline-lg": ["1.75rem", { "lineHeight": "2.8rem", "fontWeight": "700" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2.4rem", "fontWeight": "700" }], "body-md": ["1.125rem", { "lineHeight": "2.0rem", "fontWeight": "400" }], "body-sm": ["1rem", { "lineHeight": "1.75rem", "fontWeight": "400" }], "label-md": ["1rem", { "lineHeight": "1.6rem", "fontWeight": "700" }], "headline-sm": ["1.25rem", { "lineHeight": "2.1rem", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_2px_12px_rgba(22,78,138,0.05)] pt-safe"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><button aria-label="戻る" onclick="window.history.length &gt; 1 ? window.history.back() : location.href='#'" class="w-12 h-12 rounded-full bg-surface-container hover:bg-surface-variant flex items-center justify-center text-on-surface transition-colors flex-shrink-0 cursor-pointer active:scale-95"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface truncate">これまでの<ruby class="">記録<rt class="font-ruby text-ruby">きろく</rt></ruby></h1></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="文字サイズの変更" class="min-w-[48px] h-12 px-space-xs rounded-xl bg-surface-container hover:bg-surface-variant flex items-center justify-center gap-0.5 text-on-surface transition-colors"><span class="font-label-sm text-label-sm font-bold">小</span><span class="font-label-md text-label-md font-bold text-primary">中</span><span class="font-label-lg text-label-lg font-bold">大</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 bg-surface px-margin min-h-screen"><div class="flex flex-col w-full pb-12">
+<!-- Screen Intro / Emotional Warmth Anchor -->
+<div class="flex flex-col gap-space-xs mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: &quot;FILL&quot; 1;">history_edu</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">
+        これまでの<ruby>記録<rt class="font-ruby text-ruby text-on-surface-variant">きろく</rt></ruby>（<ruby>履歴<rt class="font-ruby text-ruby text-on-surface-variant">りれき</rt></ruby>）
+      </h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+      いつでも<ruby>安心<rt class="font-ruby text-ruby">あんしん</rt></ruby>して<ruby>振<rt class="font-ruby text-ruby">ふ</rt></ruby>り<ruby>返<rt class="font-ruby text-ruby">かえ</rt></ruby>れる、あなたとお<ruby>医者<rt class="font-ruby text-ruby">いしゃ</rt></ruby>さんのたいせつなメモです。
+    </p>
+</div>
+<!-- Filter Segmented Tabs -->
+
+<!-- Visual Record Flow / Cards List -->
+<div class="flex flex-col gap-space-lg" id="history-container">
+<!-- Card 1: 2026年11月6日 -->
+<article class="history-item relative bg-surface-container-lowest rounded-xl p-space-md shadow-[0_2px_12px_rgba(22,78,138,0.06)] hover:shadow-[0_6px_20px_rgba(22,78,138,0.12)] transition-all cursor-pointer group" data-category="routine" onclick="alert('2026年11月6日の詳細記録を開きます')">
+<!-- Top Meta Line: Date & Badge -->
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">2026<ruby>年<rt class="font-ruby text-ruby">ねん</rt></ruby>11<ruby>月<rt class="font-ruby text-ruby">がつ</rt></ruby>6<ruby>日<rt class="font-ruby text-ruby">にち</rt></ruby></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">10:30 〜 10:44（14<ruby>分<rt class="font-ruby text-ruby">ふん</rt></ruby><ruby>間<rt class="font-ruby text-ruby">かん</rt></ruby>）</span>
+</div>
+<!-- Routine Tag Badge -->
+
+</div>
+<!-- Dialogue Roles Participant Strip -->
+<div class="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between gap-2 mb-space-md">
+<div class="flex items-center gap-1.5 min-w-0">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-ruby text-ruby text-on-surface-variant leading-none">ご<ruby>案内<rt class="font-ruby text-ruby">あんない</rt></ruby>する<ruby>方<rt class="font-ruby text-ruby">かた</rt></ruby></span>
+<span class="font-label-sm text-label-sm text-on-surface truncate font-bold"><ruby>医師<rt class="font-ruby text-ruby">いし</rt></ruby></span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px] shrink-0">arrow_forward</span>
+<div class="flex items-center gap-1.5 min-w-0 text-right">
+<div class="flex flex-col min-w-0">
+<span class="font-ruby text-ruby text-on-surface-variant leading-none">ご<ruby>案内<rt class="font-ruby text-ruby">あんない</rt></ruby>を<ruby>受<rt class="font-ruby text-ruby">う</rt></ruby>ける<ruby>方<rt class="font-ruby text-ruby">かた</rt></ruby></span>
+<span class="font-label-sm text-label-sm text-primary truncate font-bold"><ruby>患者<rt class="font-ruby text-ruby">かんじゃ</rt></ruby>（あなた）</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">person</span>
+</div>
+</div>
+</div>
+<!-- Confirmation Status Pill -->
+<div class="flex items-center gap-1.5 mb-space-sm text-on-surface-variant font-label-sm text-label-sm w-fit"><span class="material-symbols-outlined text-primary text-[18px]">check_circle</span><span class="">すべて<ruby>確認済<rt class="font-ruby text-ruby">かくにんず</rt></ruby>み</span></div>
+<!-- AI Summary Notepad Highlight -->
+<div class="bg-surface-container-lowest border-l-4 border-primary-container pl-3 py-1 mb-space-md">
+<span class="font-ruby text-ruby text-on-surface-variant uppercase tracking-wider font-bold">AI<ruby>要約<rt class="font-ruby text-ruby">ようやく</rt></ruby>のまとめ</span>
+<p class="font-body-md text-body-md text-on-surface mt-0.5">
+<ruby>胃<rt class="font-ruby text-ruby">い</rt></ruby>の<ruby>重<rt class="font-ruby text-ruby">おも</rt></ruby>さへの<ruby>胃薬<rt class="font-ruby text-ruby">いぐすり</rt></ruby><ruby>追加<rt class="font-ruby text-ruby">ついか</rt></ruby>と、<ruby>痛<rt class="font-ruby text-ruby">いた</rt></ruby>む<ruby>時<rt class="font-ruby text-ruby">とき</rt></ruby>だけの<ruby>頓服<rt class="font-ruby text-ruby">とんぷく</rt></ruby><ruby>服用<rt class="font-ruby text-ruby">ふくよう</rt></ruby>を<ruby>確認<rt class="font-ruby text-ruby">かくにん</rt></ruby>
+</p>
+</div>
+<!-- Action Button / Tactile Surface -->
+<div class="flex justify-end pt-space-xs">
+<span class="inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary px-5 py-3 rounded-full font-label-md text-label-md group-hover:bg-primary-container transition-colors shadow-sm min-h-[48px]">
+<span class="">この<ruby>記録<rt class="font-ruby text-ruby">きろく</rt></ruby>を<ruby>見<rt class="font-ruby text-ruby">み</rt></ruby>る</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</span>
+</div>
+</article>
+<!-- Card 2: 2026年10月28日 (Special Consultation / Pharmacist) -->
+<article class="history-item relative bg-surface-container-lowest rounded-xl p-space-md shadow-[0_2px_12px_rgba(22,78,138,0.06)] hover:shadow-[0_6px_20px_rgba(22,78,138,0.12)] transition-all cursor-pointer group" data-category="special" onclick="alert('2026年10月28日の詳細記録を開きます')">
+<!-- Top Meta Line: Date & Badge -->
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">2026<ruby>年<rt class="font-ruby text-ruby">ねん</rt></ruby>10<ruby>月<rt class="font-ruby text-ruby">がつ</rt></ruby>28<ruby>日<rt class="font-ruby text-ruby">にち</rt></ruby></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">15:10 〜 15:32（22<ruby>分<rt class="font-ruby text-ruby">ふん</rt></ruby><ruby>間<rt class="font-ruby text-ruby">かん</rt></ruby>）</span>
+</div>
+<!-- Special Consultation Amber Tag -->
+
+</div>
+<!-- Dialogue Roles Participant Strip -->
+<div class="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between gap-2 mb-space-md">
+<div class="flex items-center gap-1.5 min-w-0">
+<div class="w-7 h-7 rounded-full bg-secondary text-on-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">vaccines</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-ruby text-ruby text-on-surface-variant leading-none">ご<ruby>案内<rt class="font-ruby text-ruby">あんない</rt></ruby>する<ruby>方<rt class="font-ruby text-ruby">かた</rt></ruby></span>
+<span class="font-label-sm text-label-sm text-on-surface truncate font-bold"><ruby>薬剤師<rt class="font-ruby text-ruby">やくざいし</rt></ruby></span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px] shrink-0">arrow_forward</span>
+<div class="flex items-center gap-1.5 min-w-0 text-right">
+<div class="flex flex-col min-w-0">
+<span class="font-ruby text-ruby text-on-surface-variant leading-none">ご<ruby>案内<rt class="font-ruby text-ruby">あんない</rt></ruby>を<ruby>受<rt class="font-ruby text-ruby">う</rt></ruby>ける<ruby>方<rt class="font-ruby text-ruby">かた</rt></ruby></span>
+<span class="font-label-sm text-label-sm text-secondary truncate font-bold"><ruby>介護者<rt class="font-ruby text-ruby">かいごしゃ</rt></ruby></span>
+</div>
+<div class="w-7 h-7 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0">
+
+</div>
+</div>
+</div>
+<!-- Confirmation Status Pill (Partial confirmation state: 3 of 4) -->
+<div class="flex items-center gap-2 mb-space-sm"><span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md font-bold shadow-sm"><span class="">1<ruby>件<rt class="font-ruby text-ruby">けん</rt></ruby>の<ruby>未確認<rt class="font-ruby text-ruby">みかくにん</rt></ruby>メモがあります</span></span></div>
+<!-- AI Summary Notepad Highlight -->
+<div class="bg-surface-container-lowest border-l-4 border-secondary pl-3 py-1 mb-space-md">
+<span class="font-ruby text-ruby text-on-surface-variant uppercase tracking-wider font-bold">AI<ruby>要約<rt class="font-ruby text-ruby">ようやく</rt></ruby>のまとめ</span>
+<p class="font-body-md text-body-md text-on-surface mt-0.5">
+          チューブ2<ruby>本<rt class="font-ruby text-ruby">ほん</rt></ruby>の<ruby>予備<rt class="font-ruby text-ruby">よび</rt></ruby><ruby>理由<rt class="font-ruby text-ruby">りゆう</rt></ruby>と、<ruby>交換<rt class="font-ruby text-ruby">こうかん</rt></ruby><ruby>手順<rt class="font-ruby text-ruby">てじゅん</rt></ruby>・<ruby>保管<rt class="font-ruby text-ruby">ほかん</rt></ruby><ruby>方法<rt class="font-ruby text-ruby">ほうほう</rt></ruby>について<ruby>確認<rt class="font-ruby text-ruby">かくにん</rt></ruby>
+</p>
+</div>
+<!-- Action Button -->
+<div class="flex justify-end pt-space-xs">
+<span class="inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary px-5 py-3 rounded-full font-label-md text-label-md group-hover:bg-primary-container transition-colors shadow-sm min-h-[48px]">
+<span class="">この<ruby>記録<rt class="font-ruby text-ruby">きろく</rt></ruby>を<ruby>見<rt class="font-ruby text-ruby">み</rt></ruby>る</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</span>
+</div>
+</article>
+<!-- Card 3: 2026年10月12日 -->
+<article class="history-item relative bg-surface-container-lowest rounded-xl p-space-md shadow-[0_2px_12px_rgba(22,78,138,0.06)] hover:shadow-[0_6px_20px_rgba(22,78,138,0.12)] transition-all cursor-pointer group" data-category="routine" onclick="alert('2026年10月12日の詳細記録を開きます')">
+<!-- Top Meta Line: Date & Badge -->
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">2026<ruby>年<rt class="font-ruby text-ruby">ねん</rt></ruby>10<ruby>月<rt class="font-ruby text-ruby">がつ</rt></ruby>12<ruby>日<rt class="font-ruby text-ruby">にち</rt></ruby></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">11:00 〜 11:09（9<ruby>分<rt class="font-ruby text-ruby">ふん</rt></ruby><ruby>間<rt class="font-ruby text-ruby">かん</rt></ruby>）</span>
+</div>
+<!-- Routine Tag Badge -->
+
+</div>
+<!-- Dialogue Roles Participant Strip -->
+<div class="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between gap-2 mb-space-md">
+<div class="flex items-center gap-1.5 min-w-0">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">stethoscope</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-ruby text-ruby text-on-surface-variant leading-none">ご<ruby>案内<rt class="font-ruby text-ruby">あんない</rt></ruby>する<ruby>方<rt class="font-ruby text-ruby">かた</rt></ruby></span>
+<span class="font-label-sm text-label-sm text-on-surface truncate font-bold"><ruby>医師<rt class="font-ruby text-ruby">いし</rt></ruby></span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px] shrink-0">arrow_forward</span>
+<div class="flex items-center gap-1.5 min-w-0 text-right">
+<div class="flex flex-col min-w-0">
+<span class="font-ruby text-ruby text-on-surface-variant leading-none">ご<ruby>案内<rt class="font-ruby text-ruby">あんない</rt></ruby>を<ruby>受<rt class="font-ruby text-ruby">う</rt></ruby>ける<ruby>方<rt class="font-ruby text-ruby">かた</rt></ruby></span>
+<span class="font-label-sm text-label-sm text-primary truncate font-bold"><ruby>患者<rt class="font-ruby text-ruby">かんじゃ</rt></ruby>（あなた）</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px]">person</span>
+</div>
+</div>
+</div>
+<!-- Confirmation Status Pill -->
+<div class="flex items-center gap-1.5 mb-space-sm text-on-surface-variant font-label-sm text-label-sm w-fit"><span class="material-symbols-outlined text-primary text-[18px]">check_circle</span><span class="">すべて<ruby>確認済<rt class="font-ruby text-ruby">かくにんず</rt></ruby>み</span></div>
+<!-- AI Summary Notepad Highlight -->
+<div class="bg-surface-container-lowest border-l-4 border-primary-container pl-3 py-1 mb-space-md">
+<span class="font-ruby text-ruby text-on-surface-variant uppercase tracking-wider font-bold">AI<ruby>要約<rt class="font-ruby text-ruby">ようやく</rt></ruby>のまとめ</span>
+<p class="font-body-md text-body-md text-on-surface mt-0.5">
+<ruby>秋<rt class="font-ruby text-ruby">あき</rt></ruby>の<ruby>腰痛<rt class="font-ruby text-ruby">ようつう</rt></ruby><ruby>対策<rt class="font-ruby text-ruby">たいさく</rt></ruby>ストレッチと<ruby>湿布薬<rt class="font-ruby text-ruby">しっぷやく</rt></ruby>の<ruby>処方<rt class="font-ruby text-ruby">しょほう</rt></ruby><ruby>継続<rt class="font-ruby text-ruby">けいぞく</rt></ruby>
+</p>
+</div>
+<!-- Action Button -->
+<div class="flex justify-end pt-space-xs">
+<span class="inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary px-5 py-3 rounded-full font-label-md text-label-md group-hover:bg-primary-container transition-colors shadow-sm min-h-[48px]">
+<span class="">この<ruby>記録<rt class="font-ruby text-ruby">きろく</rt></ruby>を<ruby>見<rt class="font-ruby text-ruby">み</rt></ruby>る</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</span>
+</div>
+</article>
+</div>
+<!-- Warm Companion Context Memo Note -->
+<div class="mt-space-xl p-space-md rounded-xl bg-surface-container border-l-4 border-secondary flex items-start gap-space-sm shadow-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed shrink-0">
+<span class="material-symbols-outlined text-[22px]">lightbulb</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-bold">
+        いつでもご<ruby>家族<rt class="font-ruby text-ruby">かぞく</rt></ruby>やお<ruby>医者<rt class="font-ruby text-ruby">いしゃ</rt></ruby>さんと<ruby>共有<rt class="font-ruby text-ruby">きょうゆう</rt></ruby>できます
+      </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+        「あのとき<ruby>何<rt class="font-ruby text-ruby">なに</rt></ruby>て<ruby>言<rt class="font-ruby text-ruby">い</rt></ruby>われたかな？」と<ruby>迷<rt class="font-ruby text-ruby">まよ</rt></ruby>ったときは、カードをタップして<ruby>音声<rt class="font-ruby text-ruby">おんせい</rt></ruby>やメモを<ruby>確認<rt class="font-ruby text-ruby">かくにん</rt></ruby>してくださいね。
+      </p>
+</div>
+</div>
+<!-- Bottom Navigation Link / Back to Home Button -->
+<div class="mt-space-xl flex flex-col items-center">
+<button class="w-full max-w-sm h-14 rounded-full bg-surface-container hover:bg-surface-variant text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95" onclick="window.history.length &gt; 1 ? window.history.back() : location.href='#'">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+<span class="">ホームへ<ruby>戻<rt class="font-ruby text-ruby">もど</rt></ruby>る</span>
+</button>
+</div>
+</div>
+<script>
+  function filterHistory(type) {
+    const cards = document.querySelectorAll('.history-item');
+    const tabAll = document.getElementById('tab-all');
+    const tabRoutine = document.getElementById('tab-routine');
+    const tabSpecial = document.getElementById('tab-special');
+
+    const activeClasses = ['bg-surface-container-lowest', 'text-primary', 'shadow-sm'];
+    const inactiveClasses = ['text-on-surface-variant'];
+
+    // Reset tabs visual state
+    [tabAll, tabRoutine, tabSpecial].forEach(tab => {
+      tab.classList.remove(...activeClasses);
+      tab.classList.add(...inactiveClasses);
+    });
+
+    if (type === 'all') {
+      tabAll.classList.add(...activeClasses);
+      tabAll.classList.remove(...inactiveClasses);
+      cards.forEach(card => card.classList.remove('hidden'));
+    } else if (type === 'routine') {
+      tabRoutine.classList.add(...activeClasses);
+      tabRoutine.classList.remove(...inactiveClasses);
+      cards.forEach(card => {
+        if (card.getAttribute('data-category') === 'routine') {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    } else if (type === 'special') {
+      tabSpecial.classList.add(...activeClasses);
+      tabSpecial.classList.remove(...inactiveClasses);
+      cards.forEach(card => {
+        if (card.getAttribute('data-category') === 'special') {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-4px_16px_rgba(22,78,138,0.06)]" data-active-classes="text-primary font-bold"><div class="flex items-center justify-around h-20 px-space-xs max-w-lg mx-auto"><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[52px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="home" href="#"><span class="material-symbols-outlined text-[26px]">home</span><span class="font-label-sm text-label-sm mt-0.5">ホーム</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[52px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="conversation" href="#"><span class="material-symbols-outlined text-[26px]">forum</span><span class="font-label-sm text-label-sm mt-0.5">会話</span></a><a class="flex flex-col items-center justify-center min-w-[64px] min-h-[52px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="history" href="#"><span class="material-symbols-outlined text-[26px]">history_edu</span><span class="font-label-sm text-label-sm mt-0.5">履歴</span></a></div></nav>
+
+
+
+</body></html>
