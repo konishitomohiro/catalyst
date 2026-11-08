@@ -1391,3 +1391,103 @@
 .confirmBox {
   border-radius: 0.75rem;
 }
+
+/* テスト用サイトだけの「用意した発言を入れる」欄（本番には出ない） */
+.testBox {
+  margin: var(--gap) var(--side) 0;
+  padding: 0.25rem var(--gap);
+  border: 2px dashed var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.testToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  min-height: 3rem;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.testToggle :global(.material-symbols-outlined):last-child {
+  margin-left: auto;
+}
+
+.testGroup {
+  padding-bottom: var(--gap);
+}
+
+.testTitle {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.testLine,
+.testLineUsed {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  margin-bottom: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--text);
+  text-align: left;
+  font-size: 1rem;
+}
+
+.testLineUsed {
+  color: var(--muted);
+  background: var(--container);
+}
+
+/* 伝える前に確かめる（Stitch の形にそろえる・2026-11-08） */
+.page .pairChip {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto var(--section);
+}
+
+.page .testBox {
+  margin: 0 0 var(--section);
+}
+
+.textarea {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.result {
+  margin-top: var(--section);
+  padding: 1.125rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.preview {
+  border-left: none;
+  border-radius: 0.5rem;
+  background: var(--container);
+}
+
+.points li {
+  margin-bottom: var(--gap);
+}
+
+.confirmButtons {
+  display: flex;
+  gap: var(--gap);
+}

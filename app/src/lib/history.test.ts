@@ -62,3 +62,16 @@ describe("設定", () => {
     });
   });
 });
+
+describe("テスト用の入力", () => {
+  it("開発中か TEST_INPUT=1 のときだけ出す", async () => {
+    const { testInputEnabled } = await import("./testInput");
+    const env = (e: Record<string, string>) =>
+      e as unknown as NodeJS.ProcessEnv;
+    expect(testInputEnabled(env({ NODE_ENV: "production" }))).toBe(false);
+    expect(
+      testInputEnabled(env({ NODE_ENV: "production", TEST_INPUT: "1" })),
+    ).toBe(true);
+    expect(testInputEnabled(env({ NODE_ENV: "development" }))).toBe(true);
+  });
+});

@@ -4,14 +4,22 @@ import { z } from "zod";
 import { normalize } from "./transcriptCheck";
 
 /** 1回の確認で出す点の最大数 */
-export const MAX_POINTS = 3;
+export const MAX_POINTS = 2;
 /** 文の中の場所の最大文字数 */
 export const MAX_QUOTE_LENGTH = 30;
 /** 問いの最大文字数（説明や答えを書き込ませない） */
 export const MAX_QUESTION_LENGTH = 40;
+/** 取り違えの最大文字数 */
+export const MAX_RISK_LENGTH = 40;
 
 export const premiseSchema = z.object({
-  points: z.array(z.object({ quote: z.string(), question: z.string() })),
+  points: z.array(
+    z.object({
+      quote: z.string(),
+      question: z.string(),
+      risk: z.string().optional(),
+    }),
+  ),
 });
 
 /** Gemini に渡す JSON Schema（premiseSchema と同じ形） */
@@ -26,7 +34,12 @@ export const premiseJsonSchema = {
           quote: {
             type: "string",
             description:
-              "受け手が分からなそうな前提に関わる、文の中の一部。文に出てきた表記のまま、短く",
+              "受け手が取り違えそうな、文の中の一部。文に出てきた表記のまま、短く",
+          },
+          risk: {
+            type: "string",
+            description:
+              "受け手が取り違えて、違うことをしてしまうおそれ。「〜と受け取るかもしれない」の形で短く。答えは書かない",
           },
           question: {
             type: "string",
@@ -34,14 +47,14 @@ export const premiseJsonSchema = {
               "受け手が抱きそうな問い。「〜？」の形で短く。答えや説明は書かない",
           },
         },
-        required: ["quote", "question"],
+        required: ["quote", "risk", "question"],
       },
     },
   },
   required: ["points"],
 } as const;
 
-export type PremisePoint = { quote: string; question: string };
+export type PremisePoint = { quote: string; question: string; risk: string };
 
 export type PremiseResult =
   { ok: true; points: PremisePoint[] } | { ok: false; error: string };
@@ -52,6 +65,7 @@ const QUESTION_END = /[？?]$/;
  * - JSONとして読めない・形が違う → ok: false
  * - 文の中にない場所（AIが作った文）、空・長すぎる場所 → 除外
  * - 問いの形（「？」で終わる）でないもの、長すぎるもの → 除外（答えや説明を画面に出さない）
+ * - 取り違え（risk）が書けていないもの → 除外（具体的な取り違えのない指摘は、揚げ足取りになるため。2026-11-08）
  * - 同じ場所の重複を除き、MAX_POINTS 件までに絞る
  */
 export function parsePremises(raw: string, message: string): PremiseResult {
@@ -70,13 +84,15 @@ export function parsePremises(raw: string, message: string): PremiseResult {
   for (const p of parsed.data.points) {
     const quote = p.quote.trim();
     const question = p.question.trim();
+    const risk = (p.risk ?? "").trim();
     const key = normalize(quote);
     if (!key || quote.length > MAX_QUOTE_LENGTH) continue;
     if (!text.includes(key) || seen.has(key)) continue;
     if (!question || question.length > MAX_QUESTION_LENGTH) continue;
     if (!QUESTION_END.test(question)) continue;
+    if (!risk || risk.length > MAX_RISK_LENGTH) continue;
     seen.add(key);
-    points.push({ quote, question });
+    points.push({ quote, question, risk });
   }
   return { ok: true, points: points.slice(0, MAX_POINTS) };
 }

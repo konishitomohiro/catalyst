@@ -9,6 +9,9 @@ import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
 import { Icon, ROLE_ICON } from "./Icon";
 import { SizeSwitch } from "./Settings";
+import { TestInput } from "./TestInput";
+import { TALK_SCRIPTS } from "@/lib/testInput";
+import { useTestInput } from "./TestFlag";
 import { useSpeechRecognition } from "./useSpeechRecognition";
 import styles from "./app.module.css";
 
@@ -29,6 +32,7 @@ export function Session({
   recipient: Role;
   onExit: () => void;
 }) {
+  const testInput = useTestInput();
   const [startedAt] = useState(() => Date.now());
   /** AIが見つけた言葉（会話の文字の中で印をつける） */
   const [found, setFound] = useState<string[]>([]);
@@ -66,7 +70,8 @@ export function Session({
     }
   }
 
-  const speech = useSpeechRecognition((text) => {
+  /** 聞き取った発言（声でも、テスト用の用意した発言でも同じ道を通る） */
+  function onUtterance(text: string) {
     // API の上限に収める（直前の会話は、新しい側を残す）
     const context = linesRef.current
       .slice(-CONTEXT_LINES)
@@ -75,7 +80,9 @@ export function Session({
     linesRef.current = [...linesRef.current, text];
     setLines(linesRef.current);
     void detect(text.slice(0, MAX_UTTERANCE), context);
-  });
+  }
+
+  const speech = useSpeechRecognition(onUtterance);
 
   // 新しい項目が増えたら、いちばん見えやすい下までスクロールする
   const listLength = state.list.length;
@@ -261,6 +268,15 @@ export function Session({
           )}
         </section>
 
+        {testInput && (
+          <TestInput
+            scripts={TALK_SCRIPTS}
+            sender={sender}
+            recipient={recipient}
+            label="発言を入れる"
+            onPick={onUtterance}
+          />
+        )}
         <div className={styles.controls}>
           {speech.listening ? (
             <>

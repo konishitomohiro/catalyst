@@ -115,6 +115,8 @@ type PremiseCase = {
   message: string;
   mustQuote: string[][];
   mustNotQuote: string[];
+  /** 返してよい点の最大数（0＝何も返さないでほしい） */
+  maxPoints?: number;
 };
 
 describe.skipIf(missing.length > 0)("AI評価テスト：伝える前に確かめる", () => {
@@ -133,14 +135,18 @@ describe.skipIf(missing.length > 0)("AI評価テスト：伝える前に確か�
       const unexpected = c.mustNotQuote.filter((e) =>
         quotes.some((q) => sameTerm(q, e)),
       );
-      const shown = r.points.map((p) => `${p.quote}：${p.question}`).join("、");
+      const tooMany =
+        c.maxPoints !== undefined && r.points.length > c.maxPoints;
+      const shown = r.points
+        .map((p) => `${p.quote}：${p.question}${p.risk ? `（${p.risk}）` : ""}`)
+        .join("、");
       console.log(
-        `${missingGroups.length || unexpected.length ? "✗" : "✓"} ${c.id}：[${shown}]`,
+        `${missingGroups.length || unexpected.length || tooMany ? "✗" : "✓"} ${c.id}：[${shown}]`,
       );
       expect(
-        { missingGroups, unexpected },
+        { missingGroups, unexpected, tooMany },
         `${c.message} → [${shown}]`,
-      ).toEqual({ missingGroups: [], unexpected: [] });
+      ).toEqual({ missingGroups: [], unexpected: [], tooMany: false });
     },
   );
 });

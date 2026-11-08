@@ -7,10 +7,25 @@ const msg = "来週の訪問のとき、胃ろうのチューブを2本持って
 describe("parsePremises", () => {
   it("文の中にある場所と、問いの組を返す", () => {
     expect(
-      parsePremises(raw([{ quote: "2本", question: "なぜ2本なのか？" }]), msg),
+      parsePremises(
+        raw([
+          {
+            quote: "2本",
+            question: "なぜ2本なのか？",
+            risk: "予備の数と受け取るかもしれない",
+          },
+        ]),
+        msg,
+      ),
     ).toEqual({
       ok: true,
-      points: [{ quote: "2本", question: "なぜ2本なのか？" }],
+      points: [
+        {
+          quote: "2本",
+          question: "なぜ2本なのか？",
+          risk: "予備の数と受け取るかもしれない",
+        },
+      ],
     });
   });
 
@@ -32,14 +47,28 @@ describe("parsePremises", () => {
   it("問いの形でないもの（答えや説明）は捨てる", () => {
     const r = parsePremises(
       raw([
-        { quote: "2本", question: "1本は交換用、もう1本は予備です。" },
-        { quote: "チューブ", question: "どのサイズのチューブか？" },
+        {
+          quote: "2本",
+          question: "1本は交換用、もう1本は予備です。",
+          risk: "x",
+        },
+        {
+          quote: "チューブ",
+          question: "どのサイズのチューブか？",
+          risk: "違うサイズを用意するかもしれない",
+        },
       ]),
       msg,
     );
     expect(r).toEqual({
       ok: true,
-      points: [{ quote: "チューブ", question: "どのサイズのチューブか？" }],
+      points: [
+        {
+          quote: "チューブ",
+          question: "どのサイズのチューブか？",
+          risk: "違うサイズを用意するかもしれない",
+        },
+      ],
     });
   });
 
@@ -50,22 +79,29 @@ describe("parsePremises", () => {
     );
   });
 
-  it("同じ場所の重複を除き、上限件数に絞る", () => {
+  it("取り違えが書けていない指摘は捨てる（揚げ足取りにしない）", () => {
     const r = parsePremises(
       raw([
-        { quote: "2本", question: "なぜ2本か？" },
-        { quote: "２本", question: "何に使うか？" },
-        { quote: "来週", question: "来週の何曜日か？" },
-        { quote: "訪問", question: "誰の訪問か？" },
-        { quote: "胃ろう", question: "どの患者か？" },
+        { quote: "2本", question: "なぜ2本なのか？" },
+        { quote: "来週", question: "来週の何曜日か？", risk: "" },
       ]),
       msg,
     );
-    expect(r.ok && r.points.map((p) => p.quote)).toEqual([
-      "2本",
-      "来週",
-      "訪問",
-    ]);
+    expect(r).toEqual({ ok: true, points: [] });
+  });
+
+  it("同じ場所の重複を除き、上限件数に絞る", () => {
+    const risk = "違う日に用意するかもしれない";
+    const r = parsePremises(
+      raw([
+        { quote: "2本", question: "なぜ2本か？", risk },
+        { quote: "２本", question: "何に使うか？", risk },
+        { quote: "来週", question: "来週の何曜日か？", risk },
+        { quote: "訪問", question: "誰の訪問か？", risk },
+      ]),
+      msg,
+    );
+    expect(r.ok && r.points.map((p) => p.quote)).toEqual(["2本", "来週"]);
     expect(r.ok && r.points.length).toBeLessThanOrEqual(MAX_POINTS);
   });
 });

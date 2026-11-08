@@ -9,6 +9,7 @@ import { Icon, ROLE_ICON } from "./Icon";
 import { HistoryView } from "./HistoryView";
 import { Session } from "./Session";
 import { SettingsPanel, SettingsProvider } from "./Settings";
+import { TestFlag } from "./TestFlag";
 import { TopBar } from "./TopBar";
 import styles from "./app.module.css";
 
@@ -20,11 +21,13 @@ type Start = { mode: Mode; sender: Role; recipient: Role; id: string };
 /** 下のメニュー（例/Docs/4_デザイン.md「刷新の方針」） */
 type Tab = "home" | "talk" | "history";
 
-export function App() {
+export function App({ testInput = false }: { testInput?: boolean }) {
   return (
-    <SettingsProvider>
-      <Shell />
-    </SettingsProvider>
+    <TestFlag.Provider value={testInput}>
+      <SettingsProvider>
+        <Shell />
+      </SettingsProvider>
+    </TestFlag.Provider>
   );
 }
 

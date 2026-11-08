@@ -4,7 +4,12 @@ import { useState } from "react";
 import { MAX_MESSAGE } from "@/lib/limits";
 import { splitByQuotes, type PremisePoint } from "@/lib/premise";
 import { ROLE_READING, type Role } from "@/lib/roles";
-import { Furi } from "./Furi";
+import { Furi, Word } from "./Furi";
+import { Icon, ROLE_ICON } from "./Icon";
+import { TopBar } from "./TopBar";
+import { TestInput } from "./TestInput";
+import { COMPOSE_SCRIPTS } from "@/lib/testInput";
+import { useTestInput } from "./TestFlag";
 import styles from "./app.module.css";
 
 /** 送り手の確認（伝える前）：書いた文章に、受け手が分からなそうな点がないかを確かめる */
@@ -17,6 +22,7 @@ export function Compose({
   recipient: Role;
   onExit: () => void;
 }) {
+  const testInput = useTestInput();
   const [message, setMessage] = useState("");
   /** 最後に確かめた文章と、そのときの結果 */
   const [checked, setChecked] = useState<{
@@ -61,49 +67,48 @@ export function Compose({
     }
   }
 
-  const role = (r: Role) => (
-    <ruby>
-      {r}
-      <rt>{ROLE_READING[r]}</rt>
-    </ruby>
-  );
+  const role = (r: Role) => <Word word={r} reading={ROLE_READING[r]} />;
 
   return (
-    <main className={styles.home}>
-      <div className={styles.talkHead}>
-        <span>
-          {role(sender)} → {role(recipient)}
-        </span>
-        <button
-          className={styles.textButton}
-          onClick={() => (message.trim() ? setConfirmExit(true) : onExit())}
-        >
-          <Furi text="ホームに{戻|もど}る" />
-        </button>
-      </div>
+    <main className={styles.page}>
+      <TopBar
+        title="{伝|つた}える{前|まえ}に{確|たし}かめる"
+        onBack={() => (message.trim() ? setConfirmExit(true) : onExit())}
+        backLabel="ホームにもどる"
+      />
+      <p className={styles.pairChip}>
+        <Icon name={ROLE_ICON[sender]} className={styles.inlineIcon} />
+        {role(sender)}
+        <Icon name="arrow_forward" className={styles.inlineIcon} />
+        <Icon name={ROLE_ICON[recipient]} className={styles.inlineIcon} />
+        {role(recipient)}
+      </p>
       {confirmExit && (
-        <div className={styles.inlineConfirm} role="alertdialog">
-          <span>
-            <Furi text="ホームに{戻|もど}ると、{書|か}いた{文章|ぶんしょう}が{消|き}えます。" />
-          </span>
+        <div className={styles.confirmBox} role="alertdialog">
+          <Furi text="ホームに{戻|もど}ると、{書|か}いた{文章|ぶんしょう}が{消|き}えます。" />
           <span className={styles.confirmButtons}>
             <button
-              className={styles.textButton}
+              className={styles.outline}
               onClick={() => setConfirmExit(false)}
             >
               <Furi text="{続|つづ}ける" />
             </button>
-            <button className={styles.textButton} onClick={onExit}>
+            <button className={styles.outline} onClick={onExit}>
               <Furi text="{消|け}して{戻|もど}る" />
             </button>
           </span>
         </div>
       )}
 
-      <h1 className={styles.title}>
-        <Furi text="{伝|つた}える{前|まえ}に{確|たし}かめる" />
-      </h1>
-
+      {testInput && (
+        <TestInput
+          scripts={COMPOSE_SCRIPTS}
+          sender={sender}
+          recipient={recipient}
+          label="文章を入れる"
+          onPick={(t) => setMessage(t.slice(0, MAX_MESSAGE))}
+        />
+      )}
       <label className={styles.fieldLabel} htmlFor="message">
         {role(recipient)}
         <Furi text="に{伝|つた}えたいこと" />
@@ -131,7 +136,10 @@ export function Compose({
         ) : checked ? (
           <Furi text="もう{一度|いちど}{確|たし}かめる" />
         ) : (
-          <Furi text="{確|たし}かめる" />
+          <>
+            <Icon name="fact_check" />
+            <Furi text="{確|たし}かめる" />
+          </>
         )}
       </button>
 
@@ -149,7 +157,7 @@ export function Compose({
             <>
               <p className={styles.resultLead}>
                 {role(recipient)}
-                <Furi text="は、{次|つぎ}のことが{分|わ}からないかもしれません。{根拠|こんきょ}を{書|か}き{足|た}せます。" />
+                <Furi text="が、{次|つぎ}のように{受|う}け{取|と}るかもしれません。{必要|ひつよう}なら{書|か}き{足|た}せます。" />
               </p>
               <p className={styles.preview}>
                 {splitByQuotes(
@@ -169,7 +177,11 @@ export function Compose({
                 {checked.points.map((p) => (
                   <li key={p.quote}>
                     <mark className={styles.mark}>{p.quote}</mark>
-                    <span className={styles.question}>{p.question}</span>
+                    <span className={styles.question}>{p.risk}</span>
+                    <span className={styles.note}>
+                      <Furi text="{聞|き}かれそうなこと：" />
+                      {p.question}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -179,7 +191,7 @@ export function Compose({
             </>
           ) : (
             <p className={styles.resultLead}>
-              <Furi text="{分|わ}からなそうな{点|てん}は{見|み}つかりませんでした。" />
+              <Furi text="このまま{伝|つた}わりそうです。" />
             </p>
           )}
 
