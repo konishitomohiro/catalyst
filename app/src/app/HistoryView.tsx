@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   deleteAllHistory,
   deleteRecord,
+  saveRecord,
   loadHistory,
   type HistoryRecord,
 } from "@/lib/history";
@@ -12,6 +13,8 @@ import { ROLE_READING } from "@/lib/roles";
 import { TopBar } from "./TopBar";
 import { Furi, Term, Word } from "./Furi";
 import { Icon } from "./Icon";
+import { useTestInput } from "./TestFlag";
+import { sampleHistory } from "@/lib/testInput";
 import styles from "./app.module.css";
 
 const fmtDate = (ms: number) =>
@@ -29,6 +32,7 @@ export function HistoryView() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<string | null>(null);
 
+  const testInput = useTestInput();
   const refresh = () => setList(loadHistory());
   const open = list.find((r) => r.id === openId);
 
@@ -104,6 +108,20 @@ export function HistoryView() {
   return (
     <main className={styles.page}>
       <TopBar title="これまでの{記録|きろく}" />
+      {testInput && (
+        <section className={styles.testBox} aria-label="テスト用の履歴">
+          <button
+            className={styles.testToggle}
+            onClick={() => {
+              sampleHistory().forEach(saveRecord);
+              refresh();
+            }}
+          >
+            <Icon name="science" />
+            <span>テスト用：見本の記録を入れる</span>
+          </button>
+        </section>
+      )}
       <p className={styles.note}>
         <Furi text="{記録|きろく}は、この{端末|たんまつ}の{中|なか}だけにあります。{外|そと}には{送|おく}りません。" />
       </p>
@@ -127,6 +145,8 @@ export function HistoryView() {
                       <Furi
                         text={`まだ{聞|き}いていない{言葉|ことば} ${left}`}
                       />
+                    ) : r.items.length === 0 ? (
+                      <Furi text="{分|わ}からなかった{言葉|ことば}なし" />
                     ) : (
                       <Furi
                         text={`{分|わ}からなかった{言葉|ことば} ${r.items.length}・すべて{聞|き}けた`}

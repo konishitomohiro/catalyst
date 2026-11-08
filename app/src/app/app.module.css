@@ -1569,3 +1569,9 @@
     animation: none;
   }
 }
+.recordHead .pairBox {
+  justify-content: flex-start;
+  gap: 0.4rem;
+  background: none;
+  padding: 0;
+}

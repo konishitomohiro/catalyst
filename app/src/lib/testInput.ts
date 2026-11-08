@@ -1,3 +1,4 @@
+import type { HistoryRecord } from "./history";
 // テスト用サイトだけで使う、あらかじめ用意した発言・文章（2026-11-08、Tomo の依頼）。
 // 声で入れると時間がかかるので、押すだけで「聞き取った発言」「書いた文章」として入れられる。
 // 本番のサイトには出さない。出すのは、開発中（npm run dev）か、サーバーの環境変数 TEST_INPUT=1 のときだけ
@@ -95,4 +96,79 @@ export function scriptsFor(
   const match = (s: TestScript) =>
     s.sender === sender && s.recipient === recipient;
   return [...scripts.filter(match), ...scripts.filter((s) => !match(s))];
+}
+
+/**
+ * テスト用の履歴（架空）。履歴の画面を、会話をしなくても試せるようにする。
+ * 時刻は「入れたとき」から逆算する。id は固定なので、何度入れても増えない。
+ */
+export function sampleHistory(now = Date.now()): HistoryRecord[] {
+  const h = 60 * 60 * 1000;
+  const at = (hoursAgo: number, minutes: number) => ({
+    startedAt: now - hoursAgo * h,
+    endedAt: now - hoursAgo * h + minutes * 60 * 1000,
+  });
+  return [
+    {
+      id: "sample-1",
+      ...at(2, 12),
+      sender: "医師",
+      recipient: "患者",
+      items: [
+        {
+          term: "頓服",
+          reading: "とんぷく",
+          checked: true,
+          quote: "症状が出たときだけ頓服で使ってください",
+        },
+        {
+          term: "NSAIDs",
+          reading: "えぬせいず",
+          checked: false,
+          quote: "NSAIDsを毎食後に服用してください",
+        },
+      ],
+      lines: [
+        "血圧は落ち着いていますね",
+        "NSAIDsを毎食後に服用してください",
+        "症状が出たときだけ頓服で使ってください",
+        "次は2週間後に来てください",
+      ],
+    },
+    {
+      id: "sample-2",
+      ...at(26, 8),
+      sender: "看護師",
+      recipient: "介護者",
+      items: [
+        {
+          term: "褥瘡",
+          reading: "じょくそう",
+          checked: true,
+          quote: "褥瘡の処置には、この軟膏を1日2回塗ってください",
+        },
+        {
+          term: "急変",
+          reading: "きゅうへん",
+          checked: true,
+          quote: "夜間に容態が急変した場合は連絡してください",
+        },
+      ],
+      lines: [
+        "褥瘡の処置には、この軟膏を1日2回塗ってください",
+        "夜間に容態が急変した場合は連絡してください",
+      ],
+    },
+    {
+      id: "sample-3",
+      ...at(72, 5),
+      sender: "薬剤師",
+      recipient: "患者",
+      items: [],
+      lines: [
+        "この薬を飲んでいる間はグレープフルーツを食べないでください",
+        "1日1回、朝食後に飲んでください",
+      ],
+    },
+  ];
 }
