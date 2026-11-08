@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ROLE_READING, ROLES, type Role } from "@/lib/roles";
 import { Compose } from "./Compose";
 import { Furi, Word } from "./Furi";
-import { Icon } from "./Icon";
+import { Icon, ROLE_ICON } from "./Icon";
 import { HistoryView } from "./HistoryView";
 import { Session } from "./Session";
 import { SettingsPanel, SettingsProvider } from "./Settings";
@@ -262,7 +262,7 @@ function RolePicker({
               checked={r === value}
               onChange={() => onChange(r)}
             />
-            {r === value && <Icon name="check" />}
+            <Icon name={r === value ? "check" : ROLE_ICON[r]} />
             <Word word={r} reading={ROLE_READING[r]} />
           </label>
         ))}

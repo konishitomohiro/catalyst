@@ -7,7 +7,8 @@ import { saveRecord } from "@/lib/history";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
-import { Icon } from "./Icon";
+import { Icon, ROLE_ICON } from "./Icon";
+import { Thinking } from "./Thinking";
 import { TestInput } from "./TestInput";
 import { TALK_SCRIPTS } from "@/lib/testInput";
 import { useTestInput } from "./TestFlag";
@@ -132,7 +133,11 @@ export function Session({
         <div className={styles.sessionHead}>
           {/* 誰から誰への会話かは、ここ1か所で示す */}
           <h1 className={styles.topTitle}>
-            {roleLabel(sender)} → {roleLabel(recipient)}
+            <Icon name={ROLE_ICON[sender]} className={styles.roleIcon} />
+            {roleLabel(sender)}
+            <Icon name="arrow_forward" className={styles.roleArrow} />
+            <Icon name={ROLE_ICON[recipient]} className={styles.roleIcon} />
+            {roleLabel(recipient)}
           </h1>
           <button
             className={styles.endButton}
@@ -252,13 +257,15 @@ export function Session({
             onPick={onUtterance}
           />
         )}
+        {busy > 0 && (
+          <Thinking text="{分|わ}かりにくそうな{言葉|ことば}を{探|さが}しています" />
+        )}
         <div className={styles.controls}>
           {speech.listening ? (
             <>
               <span className={styles.live}>
                 <span aria-hidden className={styles.liveDot} />
                 <Furi text="{聞|き}き{取|と}り{中|ちゅう}" />
-                {busy > 0 && <span aria-hidden className={styles.spinner} />}
               </span>
               <button className={styles.textButton} onClick={speech.stop}>
                 <Furi text="{止|と}める" />

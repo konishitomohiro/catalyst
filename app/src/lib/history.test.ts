@@ -55,7 +55,10 @@ describe("履歴", () => {
 
 describe("設定", () => {
   it("壊れていたら初期値", () => {
-    expect(parseSettings("x")).toEqual({ fontSize: "medium", furigana: "all" });
+    expect(parseSettings("x")).toEqual({
+      fontSize: "medium",
+      furigana: "terms",
+    });
     expect(parseSettings('{"fontSize":"large","furigana":"terms"}')).toEqual({
       fontSize: "large",
       furigana: "terms",

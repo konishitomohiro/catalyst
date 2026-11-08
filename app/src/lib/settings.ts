@@ -6,7 +6,7 @@ export type Settings = { fontSize: FontSize; furigana: FuriMode };
 
 export const DEFAULT_SETTINGS: Settings = {
   fontSize: "medium",
-  furigana: "all",
+  furigana: "terms",
 };
 export const SETTINGS_KEY = "catalyst.settings";
 
@@ -18,7 +18,7 @@ export function parseSettings(raw: string | null): Settings {
       fontSize: ["small", "medium", "large"].includes(v.fontSize as string)
         ? (v.fontSize as FontSize)
         : DEFAULT_SETTINGS.fontSize,
-      furigana: v.furigana === "terms" ? "terms" : "all",
+      furigana: v.furigana === "all" ? "all" : "terms",
     };
   } catch {
     return DEFAULT_SETTINGS;

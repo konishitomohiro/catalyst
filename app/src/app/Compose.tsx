@@ -5,7 +5,8 @@ import { MAX_MESSAGE } from "@/lib/limits";
 import { splitByQuotes, type PremisePoint } from "@/lib/premise";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { Furi, Word } from "./Furi";
-import { Icon } from "./Icon";
+import { Icon, ROLE_ICON } from "./Icon";
+import { Thinking } from "./Thinking";
 import { TopBar } from "./TopBar";
 import { TestInput } from "./TestInput";
 import { COMPOSE_SCRIPTS } from "@/lib/testInput";
@@ -103,6 +104,10 @@ export function Compose({
         />
       )}
       <label className={styles.fieldLabel} htmlFor="message">
+        <Icon name={ROLE_ICON[sender]} className={styles.roleIcon} />
+        {role(sender)}
+        <Icon name="arrow_forward" className={styles.roleArrow} />
+        <Icon name={ROLE_ICON[recipient]} className={styles.roleIcon} />
         {role(recipient)}
         <Furi text="に{伝|つた}えたいこと" />
       </label>
@@ -136,6 +141,9 @@ export function Compose({
         )}
       </button>
 
+      {busy && (
+        <Thinking text="{相手|あいて}が{取|と}り{違|ちが}えそうな{所|ところ}を{探|さが}しています" />
+      )}
       {error && <p className={styles.error}>{error}</p>}
 
       {checked && (
