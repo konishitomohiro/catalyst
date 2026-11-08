@@ -12,14 +12,25 @@ export function TestInput({
   recipient,
   label,
   onPick,
+  freeText = false,
 }: {
   scripts: TestScript[];
   sender: Role;
   recipient: Role;
   label: string;
   onPick: (text: string) => void;
+  /** 自由に打った文を入れる欄を出す（会話を聞くモード） */
+  freeText?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [showList, setShowList] = useState(!freeText);
+  const submit = () => {
+    const t = text.trim();
+    if (!t) return;
+    onPick(t);
+    setText("");
+  };
   const [used, setUsed] = useState<string[]>([]);
   const list = scriptsFor(scripts, sender, recipient);
   return (
@@ -33,7 +44,37 @@ export function TestInput({
         テスト用：{label}
         <Icon name={open ? "expand_less" : "expand_more"} />
       </button>
+      {open && freeText && (
+        <form
+          className={styles.testForm}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+        >
+          <input
+            className={styles.testField}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="発言を打って「入れる」"
+            aria-label="テスト用の発言"
+            enterKeyHint="send"
+          />
+          <button className={styles.testSend} disabled={!text.trim()}>
+            入れる
+          </button>
+        </form>
+      )}
+      {open && freeText && (
+        <button
+          className={styles.textButton}
+          onClick={() => setShowList((v) => !v)}
+        >
+          {showList ? "用意した発言を閉じる" : "用意した発言から選ぶ"}
+        </button>
+      )}
       {open &&
+        showList &&
         list.map((s) => (
           <div key={s.title} className={styles.testGroup}>
             <p className={styles.testTitle}>

@@ -294,6 +294,7 @@ export function Session({
             sender={sender}
             recipient={recipient}
             label="発言を入れる"
+            freeText
             onPick={onUtterance}
           />
         )}

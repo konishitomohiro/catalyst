@@ -1672,3 +1672,29 @@
 .thinkWrap {
   padding: 0 var(--side);
 }
+.testForm {
+  display: flex;
+  gap: 0.5rem;
+}
+.testField {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--card);
+  color: var(--text);
+}
+.testSend {
+  font: inherit;
+  font-weight: 700;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: var(--blue);
+  color: #fff;
+}
+.testSend:disabled {
+  opacity: 0.4;
+}
