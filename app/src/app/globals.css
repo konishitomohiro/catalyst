@@ -1,19 +1,22 @@
 /* 部品表の値（例/Docs/4_デザイン.md）。ここにある値以外は使わない */
 :root {
-  /* 色3つ：できること（青）・注意（オレンジ）・地（白と濃いグレー） */
-  --blue: #1a5fb4;
-  --blue-soft: #e8f0fb;
-  --orange: #a84f00;
-  --orange-soft: #fff1e0;
+  /* 色3つ（2026-11-08 刷新）：できること（紺）・注意（オレンジ）・地（生成りの紙と濃い文字） */
+  --blue: #1b3f7a; /* 紺。生成り地に 9.6:1 */
+  --blue-soft: #e3eaf6;
+  --orange: #a84f00; /* 生成り地に 5.2:1 */
+  --orange-soft: #fde9d2;
   --text: #1f1f1f;
-  --muted: #595959;
-  --line: #dcdcdc; /* 区切り線（飾り） */
-  --border: #8a8a8a; /* 押せる部品の枠（白地に 3:1 以上） */
-  --bg: #ffffff;
-  --dock: #1f1f1f;
-  --dock-card: #2f2f2f;
+  --muted: #555049;
+  --line: #e2dccf; /* 区切り線（飾り） */
+  --border: #8a8378; /* 押せる部品の枠（地に 3:1 以上） */
+  --bg: #faf6ee; /* 生成りの地 */
+  --card: #ffffff; /* 地の上のカード（メモの紙） */
+  --dock: #24221f;
+  --dock-card: #34312d;
   --dock-text: #ffffff;
-  --dock-muted: #c8c8c8;
+  --dock-muted: #cdc7bd;
+  --radius-lg: 1.25rem;
+  --nav-h: 4rem; /* 下のメニューの高さ */
 
   /* 余白は3段階：画面の左右・要素の間・節の間 */
   --side: 1.25rem;
@@ -41,7 +44,7 @@
 }
 
 html {
-  /* 端末の文字サイズ設定に合わせるため、rem で指定する */
+  /* 端末の文字サイズ設定に合わせるため、rem で指定する。画面の設定（小・中・大）でさらに変える */
   font-size: 100%;
   -webkit-text-size-adjust: 100%;
 }
@@ -66,6 +69,19 @@ button {
 
 rt {
   font-size: 0.55em;
+}
+
+html[data-size="small"] {
+  font-size: 87.5%;
+}
+
+html[data-size="large"] {
+  font-size: 118.75%;
+}
+
+/* ふりがなの設定が「見つけた言葉だけ」のとき、画面の文言のふりがなを消す */
+html[data-furi="terms"] ruby.furi rt {
+  display: none;
 }
 
 :focus-visible {

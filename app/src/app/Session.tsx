@@ -3,9 +3,11 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import type { DetectedTerm } from "@/lib/detection";
 import { MAX_CONTEXT, MAX_UTTERANCE } from "@/lib/limits";
+import { saveRecord } from "@/lib/history";
 import { ROLE_READING, type Role } from "@/lib/roles";
 import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
-import { Furi, Term } from "./Furi";
+import { Furi, Term, Word } from "./Furi";
+import { SizeSwitch } from "./Settings";
 import { useSpeechRecognition } from "./useSpeechRecognition";
 import styles from "./app.module.css";
 
@@ -16,14 +18,19 @@ const MAX_DOTS = 5;
 
 /** 会話：話を聞きながら、分からない言葉に印をつける */
 export function Session({
+  id,
   sender,
   recipient,
   onExit,
 }: {
+  id: string;
   sender: Role;
   recipient: Role;
   onExit: () => void;
 }) {
+  const [startedAt] = useState(() => Date.now());
+  /** AIが見つけた言葉（会話の文字の中で印をつける） */
+  const [found, setFound] = useState<string[]>([]);
   const [state, dispatch] = useReducer(sessionReducer, initialSession);
   const [lines, setLines] = useState<string[]>([]);
   const [showAll, setShowAll] = useState(false);
@@ -45,7 +52,12 @@ export function Session({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `エラー ${res.status}`);
       setAiError(null);
-      dispatch({ type: "detected", terms: data.terms as DetectedTerm[] });
+      const terms = data.terms as DetectedTerm[];
+      setFound((prev) => [
+        ...prev,
+        ...terms.map((t) => t.term).filter((t) => t && !prev.includes(t)),
+      ]);
+      dispatch({ type: "detected", terms, quote: utterance });
     } catch (e) {
       setAiError((e as Error).message);
     } finally {
@@ -79,6 +91,24 @@ export function Session({
       ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [state.highlight]);
 
+  // 履歴：その端末の中だけに、会話の途中から残しておく（例/Docs/1_方向.md）
+  useEffect(() => {
+    saveRecord({
+      id,
+      startedAt,
+      endedAt: Date.now(),
+      sender,
+      recipient,
+      items: state.list.map(({ term, reading, checked, quote }) => ({
+        term,
+        reading,
+        checked,
+        quote,
+      })),
+      lines,
+    });
+  }, [id, startedAt, sender, recipient, state.list, lines]);
+
   // 「取り消す」は5秒だけ出す
   useEffect(() => {
     if (!state.lastAnswer) return;
@@ -86,17 +116,31 @@ export function Session({
     return () => clearTimeout(id);
   }, [state.lastAnswer]);
 
-  const roleLabel = (r: Role) => (
-    <ruby>
-      {r}
-      <rt>{ROLE_READING[r]}</rt>
-    </ruby>
-  );
+  const roleLabel = (r: Role) => <Word word={r} reading={ROLE_READING[r]} />;
   const shownLines = showAll ? lines : lines.slice(-2);
 
   return (
     <div className={styles.screen}>
       <div className={styles.paper}>
+        <div className={styles.sessionHead}>
+          <span>
+            {roleLabel(sender)} → {roleLabel(recipient)}
+          </span>
+          <button
+            className={styles.textButton}
+            onClick={() => {
+              // 押し間違えても大丈夫（ユニバーサルデザイン 原則5）：消えるものがあれば確かめる
+              if (state.list.length > 0 || state.pending.length > 0) {
+                setConfirmExit(true);
+              } else {
+                onExit();
+              }
+            }}
+          >
+            <Furi text="{会話|かいわ}を{終|お}える" />
+          </button>
+          <SizeSwitch />
+        </div>
         {/* 質問リスト：画面上部。上ほど見えにくいので、まだ聞いていない言葉を下に置く */}
         <section className={styles.listArea} aria-label="分からなかった言葉">
           {state.list.length === 0 ? (
@@ -125,8 +169,13 @@ export function Session({
                       <span aria-hidden className={styles.ring}>
                         {item.checked ? "✓" : ""}
                       </span>
-                      <span className={styles.rowTerm}>
-                        <Term term={item.term} reading={item.reading} />
+                      <span className={styles.rowBody}>
+                        <span className={styles.rowTerm}>
+                          <Term term={item.term} reading={item.reading} />
+                        </span>
+                        {item.quote && (
+                          <span className={styles.quote}>「{item.quote}」</span>
+                        )}
                       </span>
                     </button>
                   </li>
@@ -138,28 +187,25 @@ export function Session({
 
         {/* 会話の文字：最初は直近の2行だけ（原則3） */}
         <section className={styles.talk}>
-          <div className={styles.talkHead}>
-            <span>
-              {roleLabel(sender)} → {roleLabel(recipient)}
-            </span>
-            <button
-              className={styles.textButton}
-              onClick={() => {
-                // 押し間違えても大丈夫（ユニバーサルデザイン 原則5）：消えるものがあれば確かめる
-                if (state.list.length > 0 || state.pending.length > 0) {
-                  setConfirmExit(true);
-                } else {
-                  onExit();
-                }
-              }}
-            >
-              <Furi text="ホームに{戻|もど}る" />
-            </button>
-          </div>
           {shownLines.map((t, i) => (
-            <p key={lines.length - shownLines.length + i}>{t}</p>
+            <div
+              key={lines.length - shownLines.length + i}
+              className={styles.say}
+            >
+              <span className={styles.who}>{roleLabel(sender)}</span>
+              <p className={styles.bubble}>
+                <Marked text={t} terms={found} />
+              </p>
+            </div>
           ))}
-          {speech.interim && <p className={styles.interim}>{speech.interim}</p>}
+          {speech.interim && (
+            <div className={styles.say}>
+              <span className={styles.who}>{roleLabel(sender)}</span>
+              <p className={`${styles.bubble} ${styles.interim}`}>
+                {speech.interim}
+              </p>
+            </div>
+          )}
           {lines.length > 2 && (
             <button
               className={styles.textButton}
@@ -218,7 +264,7 @@ export function Session({
         {confirmExit && (
           <div className={styles.undo} role="alertdialog">
             <span>
-              <Furi text="ホームに{戻|もど}ると、リストが{消|き}えます。" />
+              <Furi text="{会話|かいわ}を{終|お}えますか？リストは{履歴|りれき}に{残|のこ}ります。" />
             </span>
             <span className={styles.confirmButtons}>
               <button
@@ -228,7 +274,7 @@ export function Session({
                 <Furi text="{会話|かいわ}を{続|つづ}ける" />
               </button>
               <button className={styles.undoButton} onClick={onExit}>
-                <Furi text="{消|け}して{戻|もど}る" />
+                <Furi text="{終|お}える" />
               </button>
             </span>
           </div>
@@ -342,5 +388,28 @@ export function Session({
         )}
       </section>
     </div>
+  );
+}
+
+/** 会話の文字の中で、AIが見つけた言葉に印をつける（色と下線の両方で示す） */
+function Marked({ text, terms }: { text: string; terms: string[] }) {
+  const hits = terms.filter((t) => text.includes(t));
+  if (hits.length === 0) return <>{text}</>;
+  const esc = hits
+    .sort((a, b) => b.length - a.length)
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const parts = text.split(new RegExp(`(${esc.join("|")})`));
+  return (
+    <>
+      {parts.map((p, i) =>
+        hits.includes(p) ? (
+          <mark key={i} className={styles.mark}>
+            {p}
+          </mark>
+        ) : (
+          p
+        ),
+      )}
+    </>
   );
 }

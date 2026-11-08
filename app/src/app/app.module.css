@@ -34,7 +34,8 @@
 
 /* ---- ホーム ---- */
 
-.home {
+.home,
+.page {
   max-width: 37.5rem;
   margin: 0 auto;
   padding: var(--section) var(--side);
@@ -103,7 +104,7 @@
 
 .screen {
   position: fixed;
-  inset: 0;
+  inset: 0 0 var(--nav-h) 0;
   display: flex;
   flex-direction: column;
   background: var(--dock);
@@ -537,4 +538,308 @@
   display: block;
   font-size: 1.25rem;
   font-weight: bold;
+}
+
+/* ==== 刷新（2026-11-08、例/Docs/4_デザイン.md「刷新の方針」） ==== */
+
+.page {
+  padding-bottom: calc(var(--nav-h) + var(--section));
+}
+
+.topBar,
+.sessionHead {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  margin: 0 0 var(--section);
+}
+
+.sessionHead {
+  margin: 0;
+  padding: var(--gap) var(--side);
+  border-bottom: 1px solid var(--line);
+  font-size: 1rem;
+}
+
+.sessionHead {
+  flex-wrap: wrap;
+}
+
+.sessionHead > span:first-child {
+  flex: 1 0 auto;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.sessionHead .textButton {
+  white-space: nowrap;
+}
+
+.topTitle {
+  flex: 1;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.subTitle {
+  font-size: 1.125rem;
+  margin: var(--section) 0 var(--gap);
+}
+
+/* 文字の大きさなどの切り替え */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.segItem,
+.segOn {
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 0 0.75rem;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.segOn {
+  background: var(--blue);
+  color: #fff;
+  font-weight: bold;
+}
+
+.settings {
+  margin-top: var(--section);
+  padding: var(--gap) var(--side);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+
+.settingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 0.5rem 0;
+}
+
+.resume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem var(--side);
+  border-radius: var(--radius);
+  background: var(--orange-soft);
+}
+
+/* 会話：吹き出し。誰の発言かは、位置と職種の文字で示す（色だけにしない） */
+.say {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0 0 var(--gap);
+}
+
+.who {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.bubble {
+  max-width: 90%;
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.25rem var(--radius-lg) var(--radius-lg) var(--radius-lg);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+.talk {
+  color: var(--text);
+}
+
+/* AIが見つけた言葉：オレンジの面と下線（色だけで示さない） */
+.mark {
+  padding: 0 0.15em;
+  border-radius: 0.25rem;
+  background: var(--orange-soft);
+  color: var(--text);
+  font-weight: bold;
+  text-decoration: underline 2px var(--orange);
+  text-underline-offset: 0.2em;
+}
+
+.rowBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.quote {
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: normal;
+  text-decoration: none;
+}
+
+/* 履歴 */
+.records,
+.memoList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.recordCard,
+.memo {
+  display: flex;
+  gap: var(--gap);
+  width: 100%;
+  padding: var(--gap) var(--side);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  color: var(--text);
+  text-align: left;
+}
+
+.recordCard {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.recordHead {
+  display: flex;
+  flex-direction: column;
+}
+
+.recordDate {
+  font-weight: bold;
+}
+
+.recordTerms {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.badge,
+.badgeWarn {
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.badgeWarn {
+  background: var(--orange-soft);
+  color: var(--orange);
+  font-weight: bold;
+}
+
+.memoTerm {
+  font-size: 1.25rem;
+  font-weight: bold;
+  display: block;
+}
+
+.memoTermDone {
+  font-size: 1.25rem;
+  display: block;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.ringDone {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-weight: bold;
+}
+
+.page .bubble {
+  margin-bottom: var(--gap);
+}
+
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  margin-top: var(--section);
+  padding: var(--gap) var(--side);
+  border-radius: var(--radius-lg);
+  background: var(--orange-soft);
+}
+
+.outline {
+  min-height: var(--tap);
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--text);
+}
+
+/* 下のメニュー */
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--nav-h);
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+  z-index: 10;
+}
+
+.navItem,
+.navOn {
+  flex: 1;
+  max-width: 12.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.navOn {
+  color: var(--blue);
+  font-weight: bold;
+  box-shadow: inset 0 3px 0 var(--blue);
+}
+
+.navIcon {
+  position: relative;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.navLive {
+  position: absolute;
+  top: 0;
+  right: -0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--orange);
 }
