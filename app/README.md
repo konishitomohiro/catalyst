@@ -107,9 +107,32 @@ gcloud projects get-iam-policy $PROJECT_ID --flatten='bindings[].members' --form
 
 一覧に、今のアカウントの `roles/owner` か `roles/aiplatform.user` がなければ、プロジェクトを作ったアカウントでログインし直すか、権限を付けてもらう。ログインし直すときは、`gcloud auth application-default login` も同じアカウントで行う。
 
+3. **アプリが使う認証（ADC）のアカウントが、`gcloud auth list` と同じか。** 別々にログインするので、食い違うことがある（2026年11月7日、ADC だけ大学のアカウントになっていて 403 になった）。次の結果の `"email"` が、上の一覧で権限のあるアカウントか確かめる。
+
+```bash
+curl -s "https://oauth2.googleapis.com/tokeninfo?access_token=$(gcloud auth application-default print-access-token)" | grep email
+```
+
+違っていたら、ブラウザで権限のあるアカウントを選んでログインし直す。
+
+```bash
+gcloud auth application-default login
+```
+
+```bash
+gcloud auth application-default set-quota-project $PROJECT_ID
+```
+
 **`npm run eval` が「認証がありません」になる。** `gcloud auth application-default login` を実行する。
 
 **`npm run eval` が「モデルが見つかりません」になる。** `.env.local` の `GEMINI_MODEL` を、Vertex AI のモデル一覧にある名前にする。
+
+## テスト用の入力（用意した発言）
+
+声で入れると時間がかかるので、**テスト用のサイトだけ**、会話の画面と「伝える前に確かめる」の画面に「テスト用：発言を入れる／文章を入れる」の欄が出る。押すと、声で聞き取ったときと同じように発言（文章）が入る。中身は `src/lib/testInput.ts`（架空の例文。デモ動画の台本と AI評価テストのケースから）。
+
+- `npm run dev`（ローカル）では、いつも出る。
+- Cloud Run では、環境変数 `TEST_INPUT=1` があるときだけ出る。テスト用のサービスに出すときは、デプロイの `--set-env-vars` に `,TEST_INPUT=1` を足す（例：サービス名を `catalyst-test` にする）。本番（審査・デモ）のサービスには付けない。動かすときに読むので、作り直さなくても切り替えられる。
 
 ## コマンド
 
@@ -155,15 +178,17 @@ gcloud run deploy catalyst --source app --region asia-northeast1 --service-accou
 ## フォルダ
 
 ```
-src/app/              画面とAPI（ホーム・会話・/api/detect・文字起こしの試作）
+src/app/              画面とAPI（ホーム・会話・伝える前に確かめる・/api/detect・/api/premises・文字起こしの試作）
 src/lib/session.ts    対面の流れの状態（分かりますか？・質問リスト・取り消す）
 src/lib/detect.ts     Gemini に前提が要りそうな言葉を探させる
-src/lib/detection.ts  AIの出力の検査（形式・発言にある語だけ・読み・件数）
+src/lib/detection.ts  会話：AIの出力の検査（形式・発言にある語だけ・読み・件数）
+src/lib/premise.ts    伝える前に確かめる：AIの出力の検査（文の中の場所・問いの形・件数）
 src/lib/prompt.ts     AIへの指示文
 src/lib/gemini.ts     Gemini クライアント（Vertex AI）
 src/lib/rateLimit.ts  呼び出し回数の上限
 src/lib/viewpoints.ts これまでの案の観点リスト（今は使っていない）
 src/eval/             AI評価テスト（npm run eval）
-tests/eval-cases.json AI評価テストのケース10件（案）
+tests/eval-cases.json AI評価テストのケース（会話・10件・案）
+tests/premise-cases.json AI評価テストのケース（伝える前に確かめる・5件・案）
 public/               画像などの静的ファイル
 ```

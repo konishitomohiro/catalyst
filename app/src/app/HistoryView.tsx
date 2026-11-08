@@ -1,141 +1,333 @@
 "use client";
+// 履歴（例/Docs/1_方向.md「会話履歴の保存」）。その端末の中だけにある記録を見返す・消す。
+// AIによる要約は作らない（2026-11-08 決定）。出すのは、質問リストと会話の文字だけ。
+import { useState } from "react";
+import {
+  deleteAllHistory,
+  deleteRecord,
+  saveRecord,
+  loadHistory,
+  type HistoryRecord,
+} from "@/lib/history";
+import { ROLE_READING } from "@/lib/roles";
+import { TopBar } from "./TopBar";
+import { Furi, Term, Word } from "./Furi";
+import { Icon } from "./Icon";
+import { useTestInput } from "./TestFlag";
+import { Thinking } from "./Thinking";
+import { listNote } from "@/lib/termKind";
+import { sampleHistory } from "@/lib/testInput";
+import styles from "./app.module.css";
 
-import type { HistoryRecord } from "./types";
+const fmtDate = (ms: number) =>
+  new Date(ms).toLocaleString("ja-JP", {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-export function HistoryView({
-  history,
-  onSelectRecord,
-}: {
-  history: HistoryRecord[];
-  onSelectRecord: (record: HistoryRecord) => void;
-}) {
-  return (
-    <div className="flex flex-col w-full max-w-xl mx-auto pb-24">
-      {/* Screen Intro */}
-      <div className="flex flex-col gap-space-xs mb-space-md">
-        <div className="flex items-center gap-space-xs">
-          <span
-            className="material-symbols-outlined text-primary text-[28px]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            history_edu
-          </span>
-          <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">
-            これまでの<ruby>記録<rt className="font-ruby text-ruby text-on-surface-variant">きろく</rt></ruby>（<ruby>履歴<rt className="font-ruby text-ruby text-on-surface-variant">りれき</rt></ruby>）
-          </h2>
-        </div>
-        <p className="font-body-sm text-body-sm text-on-surface-variant">
-          いつでも<ruby>安心<rt className="font-ruby text-ruby">あんしん</rt></ruby>して<ruby>振<rt className="font-ruby text-ruby">ふ</rt></ruby>り<ruby>返<rt className="font-ruby text-ruby">かえ</rt></ruby>れる、たいせつな対話のメモです。
-        </p>
-      </div>
+export function HistoryView() {
+  // 履歴の画面は、メニューを押してから（ブラウザの中で）出るので、最初から読める
+  const [list, setList] = useState<HistoryRecord[]>(loadHistory);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<string | null>(null);
 
-      {/* Visual Record Cards List */}
-      <div className="flex flex-col gap-space-md">
-        {history.length === 0 ? (
-          <div className="bg-surface-container-low rounded-xl p-space-lg text-center text-on-surface-variant">
-            <span className="material-symbols-outlined text-[48px] text-outline-variant mb-2">
-              note_alt
-            </span>
-            <p className="font-body-md text-body-md">
-              まだ記録がありません。「新しく始める」から会話をスタートしましょう。
-            </p>
-          </div>
+  const testInput = useTestInput();
+  const refresh = () => setList(loadHistory());
+  const open = list.find((r) => r.id === openId);
+
+  if (open) {
+    return (
+      <main className={styles.page}>
+        <TopBar
+          title="{記録|きろく}"
+          onBack={() => setOpenId(null)}
+          backLabel="一覧にもどる"
+        />
+        <RecordHead r={open} />
+        <RecordSummary
+          r={open}
+          onSaved={(rec) => {
+            saveRecord(rec);
+            refresh();
+          }}
+        />
+        <h2 className={styles.subTitle}>
+          <Furi text="{分|わ}からなかった{言葉|ことば}" />
+        </h2>
+        {open.items.length === 0 ? (
+          <p className={styles.empty}>
+            <Furi text="ありません" />
+          </p>
         ) : (
-          history.map((item) => (
-            <article
-              key={item.id}
-              onClick={() => onSelectRecord(item)}
-              className="relative bg-surface-container-lowest rounded-xl p-space-md shadow-[0_2px_12px_rgba(22,78,138,0.06)] hover:shadow-[0_6px_20px_rgba(22,78,138,0.12)] transition-all cursor-pointer group border border-outline-variant/30 flex flex-col gap-space-sm"
-            >
-              {/* Top Meta Line: Date & Duration */}
-              <div className="flex items-start justify-between gap-space-sm">
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1 text-primary">
-                    <span className="material-symbols-outlined text-[20px]">
-                      calendar_today
-                    </span>
-                    <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                      {item.date}
-                    </span>
-                  </div>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant mt-0.5">
-                    {item.timeRange}（{item.duration}）
-                  </span>
-                </div>
-              </div>
-
-              {/* Dialogue Roles Participant Strip */}
-              <div className="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <div className="w-7 h-7 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[16px]">
-                      record_voice_over
-                    </span>
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-ruby text-ruby text-on-surface-variant leading-none">
-                      ご案内する方
-                    </span>
-                    <span className="font-label-sm text-label-sm text-on-surface truncate font-bold">
-                      {item.sender}
-                    </span>
-                  </div>
-                </div>
-
-                <span className="material-symbols-outlined text-outline-variant text-[20px] shrink-0">
-                  arrow_forward
-                </span>
-
-                <div className="flex items-center gap-1.5 min-w-0 text-right">
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-ruby text-ruby text-on-surface-variant leading-none">
-                      ご案内を受ける方
-                    </span>
-                    <span className="font-label-sm text-label-sm text-primary truncate font-bold">
-                      {item.recipient}
-                    </span>
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[16px]">
-                      person
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Confirmation Status Pill */}
-              <div className="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm w-fit">
-                <span className="material-symbols-outlined text-primary text-[18px]">
-                  check_circle
+          <ul className={styles.memoList}>
+            {open.items.map((it) => (
+              <li key={it.term} className={styles.memo}>
+                <span className={it.checked ? styles.boxDone : styles.box}>
+                  <Icon
+                    name={it.checked ? "check_box" : "check_box_outline_blank"}
+                    fill={it.checked}
+                  />
                 </span>
                 <span>
-                  {item.resolvedMemos.length} 件の質問メモを確認済み
-                </span>
-              </div>
-
-              {/* AI Summary Notepad Highlight */}
-              <div className="bg-surface-container-lowest border-l-4 border-primary-container pl-3 py-1">
-                <span className="font-ruby text-ruby text-on-surface-variant uppercase tracking-wider font-bold">
-                  まとめ
-                </span>
-                <p className="font-body-md text-body-md text-on-surface mt-0.5">
-                  {item.summary}
-                </p>
-              </div>
-
-              {/* Action Button */}
-              <div className="flex justify-end pt-space-xs">
-                <span className="inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary px-5 py-2.5 rounded-full font-label-md text-label-md group-hover:bg-primary-container transition-colors shadow-sm min-h-[44px]">
-                  <span>この記録を見る</span>
-                  <span className="material-symbols-outlined text-[18px]">
-                    arrow_forward
+                  <span
+                    className={
+                      it.checked ? styles.memoTermDone : styles.memoTerm
+                    }
+                  >
+                    <Term term={it.term} reading={it.reading} />
                   </span>
+                  {listNote(it) && (
+                    <span className={styles.amountAsk}>
+                      <Furi text={listNote(it) ?? ""} />
+                    </span>
+                  )}
+                  <span className={styles.srOnly}>
+                    {it.checked ? "（聞けた）" : "（まだ聞いていない）"}
+                  </span>
+                  {it.quote && (
+                    <span className={styles.quote}>「{it.quote}」</span>
+                  )}
                 </span>
-              </div>
-            </article>
-          ))
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
+        <h2 className={styles.subTitle}>
+          <Furi text="{会話|かいわ}の{文字|もじ}" />
+        </h2>
+        <div className={styles.talk}>
+          {open.lines.map((t, i) => {
+            const right = open.speakers?.[i] === "recipient";
+            return (
+              <div key={i} className={right ? styles.sayRight : styles.sayLeft}>
+                <span className={styles.sayName}>{speakerRole(open, i)}</span>
+                <p className={styles.bubble}>{t}</p>
+                {open.originals?.[i] && (
+                  <span className={styles.fixNoteText}>
+                    AIが直しました（元：{open.originals[i]}）
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <ConfirmDelete
+          label="この{記録|きろく}を{消|け}す"
+          asking={confirm === open.id}
+          onAsk={() => setConfirm(open.id)}
+          onCancel={() => setConfirm(null)}
+          onDelete={() => {
+            deleteRecord(open.id);
+            setConfirm(null);
+            setOpenId(null);
+            refresh();
+          }}
+        />
+      </main>
+    );
+  }
+
+  return (
+    <main className={styles.page}>
+      <TopBar title="これまでの{記録|きろく}" />
+      {testInput && (
+        <section className={styles.testBox} aria-label="テスト用の履歴">
+          <button
+            className={styles.testToggle}
+            onClick={() => {
+              sampleHistory().forEach(saveRecord);
+              refresh();
+            }}
+          >
+            <Icon name="science" />
+            <span>テスト用：見本の記録を入れる</span>
+          </button>
+        </section>
+      )}
+      <p className={styles.note}>
+        <Furi text="{記録|きろく}は、この{端末|たんまつ}の{中|なか}だけにあります。{外|そと}には{送|おく}りません。" />
+      </p>
+      {list.length === 0 ? (
+        <p className={styles.empty}>
+          <Furi text="まだ{記録|きろく}がありません。{会話|かいわ}を{聞|き}くと、ここに{残|のこ}ります。" />
+        </p>
+      ) : (
+        <ul className={styles.records}>
+          {list.map((r) => {
+            const left = r.items.filter((x) => !x.checked).length;
+            return (
+              <li key={r.id}>
+                <button
+                  className={styles.recordCard}
+                  onClick={() => setOpenId(r.id)}
+                >
+                  <RecordHead r={r} />
+                  <span className={left ? styles.badgeWarn : styles.badge}>
+                    {left ? (
+                      <Furi
+                        text={`まだ{聞|き}いていない{言葉|ことば} ${left}`}
+                      />
+                    ) : r.items.length === 0 ? (
+                      <Furi text="{分|わ}からなかった{言葉|ことば}なし" />
+                    ) : (
+                      <Furi
+                        text={`{分|わ}からなかった{言葉|ことば} ${r.items.length}・すべて{聞|き}けた`}
+                      />
+                    )}
+                  </span>
+                  {r.items.length > 0 && (
+                    <span className={styles.recordTerms}>
+                      {r.items.map((x) => x.term).join("、")}
+                    </span>
+                  )}
+                  {/* カード全体が押せる。目印は右の矢印だけ（原則1：主ボタンを並べない） */}
+                  <Icon name="chevron_right" className={styles.cardChevron} />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {list.length > 0 && (
+        <ConfirmDelete
+          label="すべての{記録|きろく}を{消|け}す"
+          asking={confirm === "*"}
+          onAsk={() => setConfirm("*")}
+          onCancel={() => setConfirm(null)}
+          onDelete={() => {
+            deleteAllHistory();
+            setConfirm(null);
+            refresh();
+          }}
+        />
+      )}
+    </main>
+  );
+}
+
+function RecordHead({ r }: { r: HistoryRecord }) {
+  return (
+    <span className={styles.recordHead}>
+      <span className={styles.pairBox}>
+        <Word word={r.sender} reading={ROLE_READING[r.sender]} />
+        {" → "}
+        <Word word={r.recipient} reading={ROLE_READING[r.recipient]} />
+      </span>
+      <span className={styles.recordDate}>{fmtDate(r.startedAt)}</span>
+    </span>
+  );
+}
+
+function ConfirmDelete(p: {
+  label: string;
+  asking: boolean;
+  onAsk: () => void;
+  onCancel: () => void;
+  onDelete: () => void;
+}) {
+  if (!p.asking) {
+    return (
+      <button className={styles.textButton} onClick={p.onAsk}>
+        <Furi text={p.label} />
+      </button>
+    );
+  }
+  return (
+    <div className={styles.confirmBox} role="alertdialog">
+      <Furi text="{消|け}すと{元|もと}に{戻|もど}せません。" />
+      <span className={styles.confirmButtons}>
+        <button className={styles.outline} onClick={p.onCancel}>
+          <Furi text="やめる" />
+        </button>
+        <button className={styles.outline} onClick={p.onDelete}>
+          <Furi text="{消|け}す" />
+        </button>
+      </span>
     </div>
   );
+}
+
+/** AIによる要約。押したときだけ会話の文字を送り、結果はこの端末の記録に足す */
+function RecordSummary({
+  r,
+  onSaved,
+}: {
+  r: HistoryRecord;
+  onSaved: (rec: HistoryRecord) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (r.lines.length === 0) return null;
+  // 前の形（要点だけの配列）で残っている要約は、作り直してもらう
+  const summary =
+    r.summary && !Array.isArray(r.summary) && "overview" in r.summary
+      ? r.summary
+      : undefined;
+
+  async function make() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender: r.sender,
+          recipient: r.recipient,
+          // 会話全体を、誰が話したかを添えて送る
+          lines: r.lines.map((l, i) => `${speakerRole(r, i)}：${l}`),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `エラー ${res.status}`);
+      onSaved({ ...r, summary: data });
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className={styles.summary} aria-live="polite">
+      <h2 className={styles.subTitle}>
+        <Furi text="{要約|ようやく}" />
+      </h2>
+      {summary ? (
+        <div className={styles.summaryBox}>
+          {summary.overview && (
+            <p className={styles.summaryOverview}>{summary.overview}</p>
+          )}
+          {summary.points.length > 0 && (
+            <ul className={styles.summaryList}>
+              {summary.points.map((p) => (
+                <li key={p.text}>{p.text}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : busy ? (
+        <Thinking text="{会話|かいわ}{全体|ぜんたい}をまとめています" />
+      ) : (
+        <button className={styles.outline} onClick={make}>
+          <Icon name="summarize" />
+          <Furi text="{要約|ようやく}を{作|つく}る" />
+        </button>
+      )}
+      {error && <p className={styles.error}>{error}</p>}
+      {summary && (
+        <p className={styles.note}>
+          <Furi text="AIが{会話|かいわ}{全体|ぜんたい}をまとめたものです。{元|もと}の{会話|かいわ}は{下|した}にあります。" />
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** その行を話した職種（古い記録は話し手とみなす） */
+function speakerRole(r: HistoryRecord, i: number) {
+  return r.speakers?.[i] === "recipient" ? r.recipient : r.sender;
 }

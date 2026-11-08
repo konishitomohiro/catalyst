@@ -1,206 +1,171 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Role } from "@/lib/roles";
-import { BottomNav, type NavTab } from "./BottomNav";
-import { Header } from "./Header";
-import { HistoryDetailView } from "./HistoryDetailView";
+import Link from "next/link";
+import { useState } from "react";
+import { ROLE_READING, ROLES, type Role } from "@/lib/roles";
+import { Furi, Word } from "./Furi";
+import { Icon, ROLE_ICON } from "./Icon";
 import { HistoryView } from "./HistoryView";
-import { HomeView } from "./HomeView";
-import { INITIAL_HISTORY } from "./mockData";
-import { RolesView } from "./RolesView";
 import { Session } from "./Session";
-import type { HistoryRecord } from "./types";
+import { SettingsPanel, SettingsProvider } from "./Settings";
+import { TestFlag, useTestInput } from "./TestFlag";
+import { TopBar } from "./TopBar";
+import styles from "./app.module.css";
 
-type View = "home" | "roles" | "conversation" | "history" | "history-detail";
-type TextSize = "sm" | "md" | "lg";
+type Start = { sender: Role; recipient: Role; id: string };
 
-export function App() {
-  const [view, setView] = useState<View>("home");
-  const [activeTab, setActiveTab] = useState<NavTab>("home");
-  const [roles, setRoles] = useState<{ sender: Role; recipient: Role }>({
-    sender: "医師",
-    recipient: "患者",
-  });
-  const [history, setHistory] = useState<HistoryRecord[]>(INITIAL_HISTORY);
-  const [selectedRecord, setSelectedRecord] = useState<HistoryRecord | null>(
-    null,
-  );
-  const [textSize, setTextSize] = useState<TextSize>("md");
-  const [confirmExit, setConfirmExit] = useState(false);
+/**
+ * 下のメニュー。会話していないときは「会話」で始める画面、会話中は会話の画面を出す
+ * （ホームと会話を1つにまとめた。2026-11-08、Tomo）
+ */
+type Tab = "talk" | "history";
 
-  // localStorage からの履歴読み込み
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("catalyst_history");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setHistory(parsed);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // 履歴保存
-  function handleSaveHistory(record: HistoryRecord) {
-    setHistory((prev) => {
-      const next = [record, ...prev];
-      try {
-        localStorage.setItem("catalyst_history", JSON.stringify(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  }
-
-  // 文字サイズの巡回切り替え
-  function cycleTextSize() {
-    setTextSize((current) => {
-      if (current === "sm") return "md";
-      if (current === "md") return "lg";
-      return "sm";
-    });
-  }
-
-  // ナビゲーションタブ切り替え
-  function handleSelectTab(tab: NavTab) {
-    setActiveTab(tab);
-    if (tab === "home") {
-      setView("home");
-    } else if (tab === "conversation") {
-      // すでにロールが選ばれていれば会話へ、そうでなければロール選択へ
-      setView("conversation");
-    } else if (tab === "history") {
-      setView("history");
-    }
-  }
-
-  // タイトルと戻るボタンの判定
-  let title = "ホーム";
-  let showBackButton = false;
-  let onBackAction: (() => void) | undefined = undefined;
-
-  if (view === "home") {
-    title = "ホーム";
-  } else if (view === "roles") {
-    title = "職種の選択";
-    showBackButton = true;
-    onBackAction = () => {
-      setView("home");
-      setActiveTab("home");
-    };
-  } else if (view === "conversation") {
-    title = "対話";
-    showBackButton = true;
-    onBackAction = () => {
-      setConfirmExit(true);
-    };
-  } else if (view === "history") {
-    title = "これまでの記録";
-    showBackButton = true;
-    onBackAction = () => {
-      setView("home");
-      setActiveTab("home");
-    };
-  } else if (view === "history-detail") {
-    title = "診察記録詳細";
-    showBackButton = true;
-    onBackAction = () => {
-      setView("history");
-      setActiveTab("history");
-    };
-  }
-
-  // 文字サイズクラス
-  const textSizeClass =
-    textSize === "sm"
-      ? "text-[90%]"
-      : textSize === "lg"
-        ? "text-[115%]"
-        : "text-[100%]";
-
+export function App({ testInput = false }: { testInput?: boolean }) {
   return (
-    <div
-      className={`min-h-screen bg-surface flex flex-col transition-all ${textSizeClass}`}
-    >
-      <Header
-        title={title}
-        onBack={showBackButton ? onBackAction : undefined}
-        onEndConversation={
-          view === "conversation" ? () => setConfirmExit(true) : undefined
-        }
-        textSize={textSize}
-        onCycleTextSize={cycleTextSize}
-      />
+    <TestFlag.Provider value={testInput}>
+      <SettingsProvider>
+        <Shell />
+      </SettingsProvider>
+    </TestFlag.Provider>
+  );
+}
 
-      <main className="flex-1 w-full pt-20 px-margin">
-        {view === "home" && (
-          <HomeView
-            onStartNewConversation={() => setView("roles")}
-            recentHistory={history.slice(0, 3)}
-            onOpenHistoryDetail={(rec) => {
-              setSelectedRecord(rec);
-              setView("history-detail");
-            }}
-          />
-        )}
-
-        {view === "roles" && (
-          <RolesView
-            initialSender={roles.sender}
-            initialRecipient={roles.recipient}
-            onConfirm={(sender, recipient) => {
-              setRoles({ sender, recipient });
-              setView("conversation");
-              setActiveTab("conversation");
-            }}
-          />
-        )}
-
-        {view === "conversation" && (
-          <Session
-            sender={roles.sender}
-            recipient={roles.recipient}
-            onExit={() => {
-              setConfirmExit(false);
-              setView("home");
-              setActiveTab("home");
-            }}
-            onSaveHistory={handleSaveHistory}
-            confirmExit={confirmExit}
-            setConfirmExit={setConfirmExit}
-          />
-        )}
-
-        {view === "history" && (
-          <HistoryView
-            history={history}
-            onSelectRecord={(rec) => {
-              setSelectedRecord(rec);
-              setView("history-detail");
-            }}
-          />
-        )}
-
-        {view === "history-detail" && selectedRecord && (
-          <HistoryDetailView
-            record={selectedRecord}
-            onBack={() => {
-              setView("history");
-              setActiveTab("history");
-            }}
-          />
-        )}
-      </main>
-
-      {/* 会話中以外はボトムナビゲーションを表示 */}
-      {view !== "conversation" && (
-        <BottomNav activeTab={activeTab} onSelectTab={handleSelectTab} />
+function Shell() {
+  const [tab, setTab] = useState<Tab>("talk");
+  const [active, setActive] = useState<Start | null>(null);
+  return (
+    <>
+      {/* 会話はメニューで履歴に移っても続ける（聞き取りも止めない） */}
+      {active && (
+        <div hidden={tab !== "talk"}>
+          <Session key={active.id} {...active} onExit={() => setActive(null)} />
+        </div>
       )}
-    </div>
+      {tab === "talk" && !active && (
+        <Home onStart={(s) => setActive({ ...s, id: crypto.randomUUID() })} />
+      )}
+      {tab === "history" && <HistoryView />}
+      <BottomNav tab={tab} onChange={setTab} live={active !== null} />
+    </>
+  );
+}
+
+const TABS: { tab: Tab; label: string; icon: string }[] = [
+  { tab: "talk", label: "{会話|かいわ}", icon: "forum" },
+  { tab: "history", label: "{履歴|りれき}", icon: "history" },
+];
+
+function BottomNav({
+  tab,
+  onChange,
+  live,
+}: {
+  tab: Tab;
+  onChange: (t: Tab) => void;
+  live: boolean;
+}) {
+  return (
+    <nav className={styles.nav} aria-label="メニュー">
+      {TABS.map((t) => (
+        <button
+          key={t.tab}
+          className={t.tab === tab ? styles.navOn : styles.navItem}
+          aria-current={t.tab === tab ? "page" : undefined}
+          onClick={() => onChange(t.tab)}
+        >
+          <span className={styles.navIcon}>
+            <Icon name={t.icon} fill={t.tab === tab} />
+            {t.tab === "talk" && live && <span className={styles.navLive} />}
+          </span>
+          <Furi text={t.label} />
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+/** 会話を始める画面：だれとだれが話すかを選ぶ（使い方は「会話を聞く」だけ。2026-11-08、Tomo） */
+function Home({ onStart }: { onStart: (s: Omit<Start, "id">) => void }) {
+  const [showSettings, setShowSettings] = useState(false);
+  const testInput = useTestInput();
+  const [sender, setSender] = useState<Role>("医師");
+  const [recipient, setRecipient] = useState<Role>("患者");
+  return (
+    <main className={styles.page}>
+      <TopBar title="だれと{話|はな}しますか">
+        <button
+          className={styles.round}
+          aria-label="表示の設定"
+          aria-expanded={showSettings}
+          onClick={() => setShowSettings((v) => !v)}
+        >
+          <Icon name="text_fields" />
+        </button>
+      </TopBar>
+      {showSettings && <SettingsPanel />}
+      <RolePicker
+        name="sender"
+        label="{話|はな}す{人|ひと}"
+        value={sender}
+        onChange={setSender}
+      />
+      <RolePicker
+        name="recipient"
+        label="{聞|き}く{人|ひと}（この{端末|たんまつ}を{持|も}つ{人|ひと}）"
+        value={recipient}
+        onChange={setRecipient}
+      />
+      <button
+        className={styles.primary}
+        onClick={() => onStart({ sender, recipient })}
+      >
+        <Icon name="mic" />
+        <Furi text="{会話|かいわ}を{始|はじ}める" />
+      </button>
+      <p className={styles.note}>
+        <Furi text="{試作|しさく}です。{話|はな}した{内容|ないよう}は、{文字|もじ}にするためと{言葉|ことば}を{見|み}つけるために、{外|そと}のサービスに{送|おく}られます。{架空|かくう}の{内容|ないよう}で{試|ため}せます。" />
+      </p>
+      {testInput && (
+        <p className={styles.note}>
+          <Link href="/prototype/transcribe">
+            <Furi text="{文字起|もじお}こしの{精度|せいど}を{確|たし}かめる（{開発用|かいはつよう}）" />
+          </Link>
+        </p>
+      )}
+    </main>
+  );
+}
+
+function RolePicker({
+  name,
+  label,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  value: Role;
+  onChange: (r: Role) => void;
+}) {
+  return (
+    <fieldset className={styles.roles}>
+      <legend>
+        <Furi text={label} />
+      </legend>
+      <div className={styles.chips}>
+        {ROLES.map((r) => (
+          <label key={r} className={r === value ? styles.chipOn : styles.chip}>
+            <input
+              type="radio"
+              name={name}
+              checked={r === value}
+              onChange={() => onChange(r)}
+            />
+            <Icon name={r === value ? "check" : ROLE_ICON[r]} />
+            <Word word={r} reading={ROLE_READING[r]} />
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

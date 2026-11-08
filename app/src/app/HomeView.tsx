@@ -27,10 +27,41 @@ export function HomeView({
             </div>
             <div className="flex flex-col min-w-0">
               <p className="font-headline-sm text-headline-sm text-on-surface">
-                今日<ruby>も<rt>きょう</rt></ruby>、お<ruby>話<rt>はなし</rt></ruby>の<ruby>隣<rt>となり</rt></ruby>に。
+                今日
+                <ruby>
+                  も<rt>きょう</rt>
+                </ruby>
+                、お
+                <ruby>
+                  話<rt>はなし</rt>
+                </ruby>
+                の
+                <ruby>
+                  隣<rt>となり</rt>
+                </ruby>
+                に。
               </p>
               <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-                <ruby>診察<rt>しんさつ</rt></ruby>や<ruby>相談<rt>そうだん</rt></ruby>の<ruby>言葉<rt>ことば</rt></ruby>を、<ruby>優<rt>やさ</rt></ruby>しくメモにまとめて<ruby>手渡<rt>てわた</rt></ruby>します。
+                <ruby>
+                  診察<rt>しんさつ</rt>
+                </ruby>
+                や
+                <ruby>
+                  相談<rt>そうだん</rt>
+                </ruby>
+                の
+                <ruby>
+                  言葉<rt>ことば</rt>
+                </ruby>
+                を、
+                <ruby>
+                  優<rt>やさ</rt>
+                </ruby>
+                しくメモにまとめて
+                <ruby>
+                  手渡<rt>てわた</rt>
+                </ruby>
+                します。
               </p>
             </div>
           </div>
@@ -49,11 +80,18 @@ export function HomeView({
                 mic
               </span>
               <span className="font-label-lg text-label-lg text-primary">
-                あたらしく<ruby>始<rt>はじ</rt></ruby>める
+                あたらしく
+                <ruby>
+                  始<rt>はじ</rt>
+                </ruby>
+                める
               </span>
             </div>
             <span className="bg-primary-fixed text-on-primary-fixed font-ruby text-ruby px-space-xs py-0.5 rounded-full font-bold">
-              <ruby>準備<rt>じゅんび</rt></ruby>かんたん
+              <ruby>
+                準備<rt>じゅんび</rt>
+              </ruby>
+              かんたん
             </span>
           </div>
 
@@ -71,7 +109,18 @@ export function HomeView({
               play_circle
             </span>
             <span className="font-body-lg text-body-lg text-on-primary tracking-wide">
-              <ruby>新<rt>あたら</rt></ruby>しいお<ruby>話<rt>はなし</rt></ruby>を<ruby>始<rt>はじ</rt></ruby>める
+              <ruby>
+                新<rt>あたら</rt>
+              </ruby>
+              しいお
+              <ruby>
+                話<rt>はなし</rt>
+              </ruby>
+              を
+              <ruby>
+                始<rt>はじ</rt>
+              </ruby>
+              める
             </span>
           </button>
 
@@ -84,7 +133,23 @@ export function HomeView({
               hearing
             </span>
             <p className="font-body-sm text-body-sm text-on-surface-variant min-w-0">
-              お<ruby>互<rt>たが</rt></ruby>いにお<ruby>話<rt>はなし</rt></ruby>しするだけで、<ruby>難<rt>むずか</rt></ruby>しい<ruby>言葉<rt>ことば</rt></ruby>をそっとメモします
+              お
+              <ruby>
+                互<rt>たが</rt>
+              </ruby>
+              いにお
+              <ruby>
+                話<rt>はなし</rt>
+              </ruby>
+              しするだけで、
+              <ruby>
+                難<rt>むずか</rt>
+              </ruby>
+              しい
+              <ruby>
+                言葉<rt>ことば</rt>
+              </ruby>
+              をそっとメモします
             </p>
           </div>
         </div>
@@ -98,7 +163,10 @@ export function HomeView({
               history_edu
             </span>
             <h2 className="font-headline-sm text-headline-sm text-on-surface">
-              これまでの<ruby>記録<rt>きろく</rt></ruby>
+              これまでの
+              <ruby>
+                記録<rt>きろく</rt>
+              </ruby>
             </h2>
           </div>
           <span className="font-ruby text-ruby text-on-surface-variant">

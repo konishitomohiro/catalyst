@@ -86,6 +86,121 @@
       "mustInclude": [],
       "mustExclude": ["eGFR"],
       "note": "医師なら分かる語は返さない（受け手の職種で変わるか）"
+    },
+    {
+      "id": "qty-tape-10",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "ロキソニンテープを10枚処方してください",
+      "mustInclude": [["10枚"]],
+      "mustExclude": [],
+      "note": "枚数の決まり方（1日何枚・何日分）がない（2026-11-08、Tomo）"
+    },
+    {
+      "id": "qty-tape-10-explained",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "ロキソニンテープを1日1回1枚、腰に貼るので、10日分で10枚処方してください",
+      "mustInclude": [],
+      "mustExclude": ["10枚", "1枚"],
+      "note": "枚数の決まり方が書いてある"
+    },
+    {
+      "id": "qty-tablet-14",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "痛み止めを14錠出しておきます",
+      "mustInclude": [["14錠"]],
+      "mustExclude": [],
+      "note": "錠数の決まり方がない"
+    },
+    {
+      "id": "qty-dose-explained",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "この薬は1日3回、毎食後に1錠ずつ、5日分です",
+      "mustInclude": [],
+      "mustExclude": ["1錠", "5日分", "1日3回"],
+      "note": "量の決まり方が書いてある"
+    },
+    {
+      "id": "test-ct",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "来週CTを撮りましょう",
+      "mustInclude": [["CT"]],
+      "mustExclude": [],
+      "note": "検査の目的が言われていない（2026-11-08、Tomo）"
+    },
+    {
+      "id": "test-explained",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "胃の中を見るために、来週胃カメラをします。ポリープがないかを調べます",
+      "mustInclude": [],
+      "mustExclude": ["胃カメラ"],
+      "note": "検査の目的が言われている"
+    },
+    {
+      "id": "test-to-pharmacist",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "来週CTを撮ります",
+      "mustInclude": [],
+      "mustExclude": ["CT"],
+      "note": "医療職には目的を聞かない"
+    },
+    {
+      "id": "result-high",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "肝臓の数値が高いですね",
+      "mustInclude": [["数値が高い", "数値"]],
+      "mustExclude": [],
+      "note": "結果の意味が言われていない"
+    },
+    {
+      "id": "treatment-chemo",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "手術の前に抗がん剤をやります",
+      "mustInclude": [["抗がん剤"]],
+      "mustExclude": [],
+      "note": "治療の目的・期間が言われていない"
+    },
+    {
+      "id": "diag-stage",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "胃がんで、ステージ3です",
+      "mustInclude": [["ステージ3", "ステージ"]],
+      "mustExclude": [],
+      "note": "ステージの意味が言われていない（2026-11-08、Tomo）"
+    },
+    {
+      "id": "prognosis",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "5年生存率は40%くらいです",
+      "mustInclude": [["5年生存率", "生存率"]],
+      "mustExclude": [],
+      "note": "予後の意味・捉え方"
+    },
+    {
+      "id": "treatment-corset",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "コルセットを2ヶ月間、生活する際につけてください",
+      "mustInclude": [["コルセット"]],
+      "mustExclude": [],
+      "points": [
+        {
+          "term": "コルセット",
+          "mustHave": ["purpose", "caution"],
+          "mustNotHave": ["duration", "side_effects", "options"]
+        }
+      ],
+      "note": "患者が気になるのは、つける理由と気をつけること。期間は言われている（2026-11-08、Tomo）"
     }
   ]
 }

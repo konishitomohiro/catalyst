@@ -13,7 +13,11 @@ describe("parseDetection", () => {
       ),
     ).toEqual({
       ok: true,
-      terms: [{ term: "NSAIDs" }, { term: "毎食後", reading: "まいしょくご" }],
+      speaker: "sender",
+      terms: [
+        { term: "NSAIDs", kind: "word" },
+        { term: "毎食後", reading: "まいしょくご", kind: "word" },
+      ],
     });
   });
 
@@ -37,7 +41,11 @@ describe("parseDetection", () => {
       ]),
       "NSAIDsを飲んでください",
     );
-    expect(r).toEqual({ ok: true, terms: [{ term: "NSAIDs" }] });
+    expect(r).toEqual({
+      ok: true,
+      speaker: "sender",
+      terms: [{ term: "NSAIDs", kind: "word" }],
+    });
   });
 
   it("全角・半角や空白の違いは同じ語とみなし、重複を除く", () => {
@@ -45,7 +53,11 @@ describe("parseDetection", () => {
       raw([t("14Fr"), t("１４ Fr"), t(" ")]),
       "チューブは14Frで",
     );
-    expect(r).toEqual({ ok: true, terms: [{ term: "14Fr" }] });
+    expect(r).toEqual({
+      ok: true,
+      speaker: "sender",
+      terms: [{ term: "14Fr", kind: "word" }],
+    });
   });
 
   it("件数の上限を守る", () => {
@@ -69,5 +81,53 @@ describe("cleanReading", () => {
     expect(cleanReading("褥瘡", "床ずれのこと")).toBeUndefined();
     expect(cleanReading("褥瘡", "jokusou")).toBeUndefined();
     expect(cleanReading("褥瘡", "")).toBeUndefined();
+  });
+
+  it("聞き手が話した発言では、言葉を返さない", () => {
+    const r = parseDetection(
+      JSON.stringify({ speaker: "recipient", terms: [t("頓服", "とんぷく")] }),
+      "頓服ってなんですか",
+    );
+    expect(r).toEqual({ ok: true, speaker: "recipient", terms: [] });
+  });
+
+  it("speaker が分からなければ話し手とみなす", () => {
+    const r = parseDetection(
+      JSON.stringify({ speaker: "?", terms: [] }),
+      "なにか",
+    );
+    expect(r.ok && r.speaker).toBe("sender");
+  });
+
+  it("聞き間違いの直しを受け取り、言葉は直した文から探す", () => {
+    const r = parseDetection(
+      JSON.stringify({
+        speaker: "sender",
+        corrected: "アゾセミド30mgを1日2錠処方します",
+        terms: [t("アゾセミド", "あぞせみど"), t("2錠", "にじょう")],
+      }),
+      "アゾセミド30mmを1日2畳処方します",
+    );
+    expect(r).toEqual({
+      ok: true,
+      speaker: "sender",
+      corrected: "アゾセミド30mgを1日2錠処方します",
+      terms: [
+        { term: "アゾセミド", kind: "word" },
+        { term: "2錠", reading: "にじょう", kind: "amount" },
+      ],
+    });
+  });
+
+  it("数字を変える直しは受け取らず、元の文から探す", () => {
+    const r = parseDetection(
+      JSON.stringify({
+        speaker: "sender",
+        corrected: "10枚処方します",
+        terms: [t("10枚", "じゅうまい")],
+      }),
+      "20枚処方します",
+    );
+    expect(r).toEqual({ ok: true, speaker: "sender", terms: [] });
   });
 });

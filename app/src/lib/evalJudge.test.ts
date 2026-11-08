@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import cases from "../../tests/eval-cases.json";
+import premiseCases from "../../tests/premise-cases.json";
 import { judge, sameTerm, type EvalCase } from "./evalJudge";
 import { ROLES } from "./roles";
 
@@ -31,6 +32,7 @@ describe("judge", () => {
       pass: false,
       missing: [["NSAIDs"]],
       unexpected: [],
+      pointIssues: [],
     });
   });
 
@@ -39,6 +41,7 @@ describe("judge", () => {
       pass: false,
       missing: [],
       unexpected: ["毎食後"],
+      pointIssues: [],
     });
   });
 
@@ -60,5 +63,43 @@ describe("tests/eval-cases.json", () => {
         expect(sameTerm(c.utterance, e), `${c.id}: ${e}`).toBe(true);
       }
     }
+  });
+});
+
+describe("tests/premise-cases.json", () => {
+  it("形が正しく、期待する場所は文の中にある", () => {
+    const ids = new Set<string>();
+    for (const c of premiseCases.cases) {
+      expect(ids.has(c.id)).toBe(false);
+      ids.add(c.id);
+      expect(ROLES).toContain(c.sender);
+      expect(ROLES).toContain(c.recipient);
+      for (const e of [...c.mustQuote.flat(), ...c.mustNotQuote]) {
+        expect(sameTerm(c.message, e), `${c.id}: ${e}`).toBe(true);
+      }
+    }
+  });
+
+  it("並べる点（missing）の条件も見る", () => {
+    const c = {
+      ...base,
+      utterance: "コルセットを2ヶ月間つけてください",
+      mustInclude: [["コルセット"]],
+      mustExclude: [],
+      points: [
+        {
+          term: "コルセット",
+          mustHave: ["purpose", "caution"],
+          mustNotHave: ["duration", "side_effects"],
+        },
+      ],
+    };
+    const ok = [{ term: "コルセット", missing: ["purpose", "caution"] }];
+    expect(judge(c, ["コルセット"], ok).pass).toBe(true);
+    const ng = [{ term: "コルセット", missing: ["purpose", "side_effects"] }];
+    expect(judge(c, ["コルセット"], ng).pointIssues).toEqual([
+      "コルセットに足りない点：caution",
+      "コルセットに余計な点：side_effects",
+    ]);
   });
 });

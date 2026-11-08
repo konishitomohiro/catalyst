@@ -1,0 +1,90 @@
+{
+  "_note": "送り手の確認（伝える前）の AI評価テストのケース（案）。例/Docs/7_テスト.md。医療の例文は架空。中身は人が確かめて直す。mustQuote は組ごとに、組の中のどれか1つが「文の中の場所」として出てほしいもの。mustNotQuote は出てはいけないもの。 maxPoints は、返してよい点の最大数（0＝何も返さないでほしい。揚げ足取りをしないかを測る。2026-11-08 追加）。",
+  "cases": [
+    {
+      "id": "p-tube-2",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "message": "来週の訪問のとき、胃ろうのチューブを2本持ってきてください",
+      "mustQuote": [["2本"]],
+      "mustNotQuote": [],
+      "note": "インタビューの場面。本数の理由がない"
+    },
+    {
+      "id": "p-tube-2-explained",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "message": "来週の訪問のとき、胃ろうのチューブを2本持ってきてください。1本は交換用、もう1本は抜けたときの予備です",
+      "mustQuote": [],
+      "mustNotQuote": ["2本"],
+      "note": "理由が書いてある"
+    },
+    {
+      "id": "p-painkiller-more",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "message": "念のため痛み止めを多めに出しておいてください",
+      "mustQuote": [["多め", "念のため"]],
+      "mustNotQuote": [],
+      "note": "量の根拠と、余ったときの扱いがない"
+    },
+    {
+      "id": "p-ointment",
+      "sender": "医師",
+      "recipient": "患者",
+      "message": "この軟膏を塗ってください",
+      "mustQuote": [["塗って", "軟膏"]],
+      "mustNotQuote": [],
+      "note": "どこに・いつ・どのくらいが分からない"
+    },
+    {
+      "id": "p-catheter-nurse",
+      "sender": "医師",
+      "recipient": "看護師",
+      "message": "明日、尿道カテーテルを交換してください。前回の交換から4週間たったためです",
+      "mustQuote": [],
+      "mustNotQuote": ["交換"],
+      "note": "理由が書いてあり、看護師には分かる手技"
+    },
+    {
+      "id": "p-clear-bp",
+      "sender": "医師",
+      "recipient": "看護師",
+      "message": "本日14時に、ベッド上で血圧を測って記録してください",
+      "mustQuote": [],
+      "mustNotQuote": [],
+      "maxPoints": 0,
+      "note": "時刻・場所・することが書いてあり、看護師がそのまま動ける"
+    },
+    {
+      "id": "p-clear-dose",
+      "sender": "薬剤師",
+      "recipient": "患者",
+      "message": "この薬は1日3回、毎食後に1錠ずつ飲んでください。2週間分です",
+      "mustQuote": [],
+      "mustNotQuote": [],
+      "maxPoints": 0,
+      "note": "回数・時間・量・期間がそろっている"
+    },
+    {
+      "id": "p-clear-bath",
+      "sender": "看護師",
+      "recipient": "介護者",
+      "message": "熱が37.5度あるので、今日の入浴はお休みにして、体をタオルで拭いてください",
+      "mustQuote": [],
+      "mustNotQuote": [],
+      "maxPoints": 0,
+      "note": "理由と代わりにすることが書いてある"
+    },
+    {
+      "id": "p-clear-rx",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "message": "アムロジピン5mgを1日1回朝食後、28日分でお願いします",
+      "mustQuote": [],
+      "mustNotQuote": [],
+      "maxPoints": 0,
+      "note": "薬剤師に必要なことがそろっている"
+    }
+  ]
+}
