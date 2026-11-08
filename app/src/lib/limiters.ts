@@ -1,5 +1,5 @@
 // API 全体で共有する呼び出し回数の上限（例/Docs/9_直すこと.md #3・#10）。
-// /api/detect と /api/premises の両方で同じ数え方をする。
+// /api/detect と /api/summary で同じ数え方をする。
 import "server-only";
 import { clientKey, createRateLimiter } from "./rateLimit";
 

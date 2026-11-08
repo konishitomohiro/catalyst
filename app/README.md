@@ -129,7 +129,7 @@ gcloud auth application-default set-quota-project $PROJECT_ID
 
 ## テスト用の入力（用意した発言）
 
-声で入れると時間がかかるので、**テスト用のサイトだけ**、会話の画面と「伝える前に確かめる」の画面に「テスト用：発言を入れる／文章を入れる」の欄が出る。押すと、声で聞き取ったときと同じように発言（文章）が入る。中身は `src/lib/testInput.ts`（架空の例文。デモ動画の台本と AI評価テストのケースから）。
+声で入れると時間がかかるので、**テスト用のサイトだけ**、会話の画面に「テスト用：発言を入れる」の欄が出る。押すと、声で聞き取ったときと同じように発言が入る。中身は `src/lib/testInput.ts`（架空の例文。デモ動画の台本と AI評価テストのケースから）。
 
 - `npm run dev`（ローカル）では、いつも出る。
 - Cloud Run では、環境変数 `TEST_INPUT=1` があるときだけ出る。テスト用のサービスに出すときは、デプロイの `--set-env-vars` に `,TEST_INPUT=1` を足す（例：サービス名を `catalyst-test` にする）。本番（審査・デモ）のサービスには付けない。動かすときに読むので、作り直さなくても切り替えられる。
@@ -178,17 +178,14 @@ gcloud run deploy catalyst --source app --region asia-northeast1 --service-accou
 ## フォルダ
 
 ```
-src/app/              画面とAPI（ホーム・会話・伝える前に確かめる・/api/detect・/api/premises・文字起こしの試作）
+src/app/              画面とAPI（だれと話すか・会話・履歴・/api/detect・/api/summary・文字起こしの試作）
 src/lib/session.ts    対面の流れの状態（分かりますか？・質問リスト・取り消す）
 src/lib/detect.ts     Gemini に前提が要りそうな言葉を探させる
 src/lib/detection.ts  会話：AIの出力の検査（形式・発言にある語だけ・読み・件数）
-src/lib/premise.ts    伝える前に確かめる：AIの出力の検査（文の中の場所・問いの形・件数）
 src/lib/prompt.ts     AIへの指示文
 src/lib/gemini.ts     Gemini クライアント（Vertex AI）
 src/lib/rateLimit.ts  呼び出し回数の上限
-src/lib/viewpoints.ts これまでの案の観点リスト（今は使っていない）
 src/eval/             AI評価テスト（npm run eval）
 tests/eval-cases.json AI評価テストのケース（会話・10件・案）
-tests/premise-cases.json AI評価テストのケース（伝える前に確かめる・5件・案）
 public/               画像などの静的ファイル
 ```

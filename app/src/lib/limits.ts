@@ -4,5 +4,3 @@
 export const MAX_UTTERANCE = 500;
 /** 参考に渡す直前の会話の最大文字数 */
 export const MAX_CONTEXT = 1500;
-/** 送り手の確認（伝える前）で、1回に確かめる文章の最大文字数 */
-export const MAX_MESSAGE = 1000;

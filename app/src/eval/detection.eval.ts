@@ -6,10 +6,8 @@
 // いつ回すか：指示文（prompt.ts）・モデル・検査（detection.ts）を変えたとき（例/Docs/7_テスト.md）。
 import { afterAll, describe, expect, it } from "vitest";
 import cases from "../../tests/eval-cases.json";
-import premiseCases from "../../tests/premise-cases.json";
-import { checkPremises, detectTerms } from "@/lib/detect";
-import { judge, sameTerm, type EvalCase } from "@/lib/evalJudge";
-import type { Role } from "@/lib/roles";
+import { detectTerms } from "@/lib/detect";
+import { judge, type EvalCase } from "@/lib/evalJudge";
 
 const all = cases.cases as EvalCase[];
 
@@ -109,47 +107,3 @@ describe.skipIf(missing.length > 0)(
     });
   },
 );
-
-// 送り手の確認（伝える前）。文の中の場所（quote）で判定する。問いの文章は比べない（ルール5）
-type PremiseCase = {
-  id: string;
-  sender: Role;
-  recipient: Role;
-  message: string;
-  mustQuote: string[][];
-  mustNotQuote: string[];
-  /** 返してよい点の最大数（0＝何も返さないでほしい） */
-  maxPoints?: number;
-};
-
-describe.skipIf(missing.length > 0)("AI評価テスト：伝える前に確かめる", () => {
-  it.for(premiseCases.cases as PremiseCase[])(
-    "$id",
-    { timeout: 60_000 },
-    async (c, ctx) => {
-      if (fatal) ctx.skip();
-      const r = await checkPremises(c);
-      expect(r.ok, r.ok ? "" : r.error).toBe(true);
-      if (!r.ok) return;
-      const quotes = r.points.map((p) => p.quote);
-      const missingGroups = c.mustQuote.filter(
-        (g) => !g.some((e) => quotes.some((q) => sameTerm(q, e))),
-      );
-      const unexpected = c.mustNotQuote.filter((e) =>
-        quotes.some((q) => sameTerm(q, e)),
-      );
-      const tooMany =
-        c.maxPoints !== undefined && r.points.length > c.maxPoints;
-      const shown = r.points
-        .map((p) => `${p.quote}：${p.question}${p.risk ? `（${p.risk}）` : ""}`)
-        .join("、");
-      console.log(
-        `${missingGroups.length || unexpected.length || tooMany ? "✗" : "✓"} ${c.id}：[${shown}]`,
-      );
-      expect(
-        { missingGroups, unexpected, tooMany },
-        `${c.message} → [${shown}]`,
-      ).toEqual({ missingGroups: [], unexpected: [], tooMany: false });
-    },
-  );
-});
