@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "catalyst",
-  description: "多職種間の「前提」を埋めるアプリ（ハッカソン用・開発中）",
+  title: "Zureless",
+  description: "会話の中の「分からない」に、その場で気づけるアプリ",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

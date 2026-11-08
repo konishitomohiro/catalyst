@@ -1,5 +1,6 @@
 "use client";
 
+import { Furi } from "./Furi";
 import type { HistoryRecord } from "./types";
 
 export function HomeView({
@@ -42,26 +43,7 @@ export function HomeView({
                 に。
               </p>
               <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-                <ruby>
-                  診察<rt>しんさつ</rt>
-                </ruby>
-                や
-                <ruby>
-                  相談<rt>そうだん</rt>
-                </ruby>
-                の
-                <ruby>
-                  言葉<rt>ことば</rt>
-                </ruby>
-                を、
-                <ruby>
-                  優<rt>やさ</rt>
-                </ruby>
-                しくメモにまとめて
-                <ruby>
-                  手渡<rt>てわた</rt>
-                </ruby>
-                します。
+                <Furi text="{診察|しんさつ}や{相談|そうだん}の{中|なか}の「{分|わ}からない」に、その{場|ば}で{気|き}づけるようにします。" />
               </p>
             </div>
           </div>
