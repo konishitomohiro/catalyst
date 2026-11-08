@@ -1,6 +1,7 @@
 // 会話の履歴（例/Docs/1_方向.md「会話履歴の保存」）。その端末の中だけに残す。サーバーには送らない。
 import type { Role } from "./roles";
 import type { Speaker } from "./detection";
+import type { Kind } from "./termKind";
 import type { Summary } from "./summary";
 
 export type HistoryItem = {
@@ -8,6 +9,7 @@ export type HistoryItem = {
   reading?: string;
   checked: boolean;
   quote?: string;
+  kind?: Kind;
 };
 
 export type HistoryRecord = {

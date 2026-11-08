@@ -1,6 +1,7 @@
 // 対面の流れの状態（例/Docs/1_方向.md 7章）。選択と判断はすべてここ（コード）でする。
 import type { DetectedTerm } from "./detection";
 import { normalize } from "./transcriptCheck";
+import type { Kind } from "./termKind";
 
 /** 「取り消す」を出しておく時間（例/Docs/4_デザイン.md） */
 export const UNDO_MS = 5000;
@@ -11,6 +12,7 @@ export type Term = {
   term: string;
   reading?: string;
   quote?: string;
+  kind?: Kind;
 };
 export type ListItem = Term & { checked: boolean };
 
@@ -58,7 +60,7 @@ export function sessionReducer(
   switch (action.type) {
     case "detected": {
       let next = state;
-      for (const { term, reading } of action.terms) {
+      for (const { term, reading, kind } of action.terms) {
         const key = termKey(term);
         if (!key) continue;
         // 一度答えた語・答え待ちの語は聞き直さない
@@ -76,7 +78,7 @@ export function sessionReducer(
           ...next,
           pending: [
             ...next.pending,
-            { key, term, reading, quote: action.quote },
+            { key, term, reading, quote: action.quote, kind },
           ],
         };
       }

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { normalize } from "./transcriptCheck";
 import { acceptCorrection } from "./transcriptFix";
+import { decideKind, type Kind } from "./termKind";
 
 /** 1回の発言から受け取る用語の最大数 */
 export const MAX_TERMS = 5;
@@ -17,7 +18,11 @@ export const detectionSchema = z.object({
   speaker: z.string().optional(),
   corrected: z.string().optional(),
   terms: z.array(
-    z.object({ term: z.string(), reading: z.string().optional() }),
+    z.object({
+      term: z.string(),
+      reading: z.string().optional(),
+      kind: z.string().optional(),
+    }),
   ),
 });
 
@@ -50,8 +55,14 @@ export const detectionJsonSchema = {
             type: "string",
             description: "term の読み（ひらがな）。意味の説明は書かない",
           },
+          kind: {
+            type: "string",
+            enum: ["word", "amount", "test", "result", "treatment"],
+            description:
+              "word＝分からない言葉、amount＝決まり方の分からない数や量、test＝目的の言われていない検査、result＝意味の言われていない結果・診断、treatment＝目的や期間の言われていない治療",
+          },
         },
-        required: ["term", "reading"],
+        required: ["term", "reading", "kind"],
       },
     },
   },
@@ -62,6 +73,8 @@ export type DetectedTerm = {
   term: string;
   /** ふりがな。漢字を含まない語や、読みとして正しくない値のときは undefined */
   reading?: string;
+  /** 種類（聞き方を変える）。コードが decideKind で決める */
+  kind?: Kind;
 };
 
 export type DetectionResult =
@@ -119,7 +132,11 @@ export function parseDetection(
     if (!key || term.length > MAX_TERM_LENGTH) continue;
     if (!text.includes(key) || seen.has(key)) continue;
     seen.add(key);
-    terms.push({ term, reading: cleanReading(term, t.reading) });
+    terms.push({
+      term,
+      reading: cleanReading(term, t.reading),
+      kind: decideKind(term, t.kind),
+    });
   }
   // 聞き手が話した発言は、聞き手が知っている言葉なので出さない（コードが決める。ルール4）
   if (speaker === "recipient")

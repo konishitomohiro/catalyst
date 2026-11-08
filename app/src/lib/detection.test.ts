@@ -14,7 +14,10 @@ describe("parseDetection", () => {
     ).toEqual({
       ok: true,
       speaker: "sender",
-      terms: [{ term: "NSAIDs" }, { term: "毎食後", reading: "まいしょくご" }],
+      terms: [
+        { term: "NSAIDs", kind: "word" },
+        { term: "毎食後", reading: "まいしょくご", kind: "word" },
+      ],
     });
   });
 
@@ -41,7 +44,7 @@ describe("parseDetection", () => {
     expect(r).toEqual({
       ok: true,
       speaker: "sender",
-      terms: [{ term: "NSAIDs" }],
+      terms: [{ term: "NSAIDs", kind: "word" }],
     });
   });
 
@@ -53,7 +56,7 @@ describe("parseDetection", () => {
     expect(r).toEqual({
       ok: true,
       speaker: "sender",
-      terms: [{ term: "14Fr" }],
+      terms: [{ term: "14Fr", kind: "word" }],
     });
   });
 
@@ -109,7 +112,10 @@ describe("cleanReading", () => {
       ok: true,
       speaker: "sender",
       corrected: "アゾセミド30mgを1日2錠処方します",
-      terms: [{ term: "アゾセミド" }, { term: "2錠", reading: "にじょう" }],
+      terms: [
+        { term: "アゾセミド", kind: "word" },
+        { term: "2錠", reading: "にじょう", kind: "amount" },
+      ],
     });
   });
 

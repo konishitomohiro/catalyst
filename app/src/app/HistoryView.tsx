@@ -15,7 +15,7 @@ import { Furi, Term, Word } from "./Furi";
 import { Icon } from "./Icon";
 import { useTestInput } from "./TestFlag";
 import { Thinking } from "./Thinking";
-import { isAmount } from "@/lib/amount";
+import { ASK, kindOf } from "@/lib/termKind";
 import { sampleHistory } from "@/lib/testInput";
 import styles from "./app.module.css";
 
@@ -79,9 +79,9 @@ export function HistoryView() {
                   >
                     <Term term={it.term} reading={it.reading} />
                   </span>
-                  {isAmount(it.term) && (
+                  {ASK[kindOf(it)].list && (
                     <span className={styles.amountAsk}>
-                      <Furi text="なんでその{量|りょう}を{出|だ}すのか" />
+                      <Furi text={ASK[kindOf(it)].list ?? ""} />
                     </span>
                   )}
                   <span className={styles.srOnly}>

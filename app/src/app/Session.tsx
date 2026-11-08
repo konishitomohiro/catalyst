@@ -9,7 +9,7 @@ import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
 import { Icon, ROLE_ICON } from "./Icon";
 import { Thinking } from "./Thinking";
-import { isAmount } from "@/lib/amount";
+import { ASK, kindOf } from "@/lib/termKind";
 import { squeezeSpaces } from "@/lib/transcriptFix";
 import { TestInput } from "./TestInput";
 import { TALK_SCRIPTS } from "@/lib/testInput";
@@ -150,11 +150,12 @@ export function Session({
       endedAt: Date.now(),
       sender,
       recipient,
-      items: state.list.map(({ term, reading, checked, quote }) => ({
+      items: state.list.map(({ term, reading, checked, quote, kind }) => ({
         term,
         reading,
         checked,
         quote,
+        kind,
       })),
       lines,
       speakers,
@@ -255,9 +256,9 @@ export function Session({
                         <span className={styles.rowTerm}>
                           <Term term={item.term} reading={item.reading} />
                         </span>
-                        {isAmount(item.term) && (
+                        {ASK[kindOf(item)].list && (
                           <span className={styles.amountAsk}>
-                            <Furi text="なんでその{量|りょう}を{出|だ}すのか" />
+                            <Furi text={ASK[kindOf(item)].list ?? ""} />
                           </span>
                         )}
                         {item.quote && (
@@ -454,11 +455,7 @@ export function Session({
                       <Term term={p.term} reading={p.reading} />
                     </span>
                     」
-                    {isAmount(p.term) ? (
-                      <Furi text="なんでその{量|りょう}を{出|だ}すのか、{分|わ}かりますか？" />
-                    ) : (
-                      <Furi text="は{分|わ}かりますか？" />
-                    )}
+                    <Furi text={ASK[kindOf(p)].card} />
                   </p>
                   <div className={styles.answers}>
                     <button

@@ -122,6 +122,51 @@
       "mustInclude": [],
       "mustExclude": ["1錠", "5日分", "1日3回"],
       "note": "量の決まり方が書いてある"
+    },
+    {
+      "id": "test-ct",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "来週CTを撮りましょう",
+      "mustInclude": [["CT"]],
+      "mustExclude": [],
+      "note": "検査の目的が言われていない（2026-11-08、Tomo）"
+    },
+    {
+      "id": "test-explained",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "胃の中を見るために、来週胃カメラをします。ポリープがないかを調べます",
+      "mustInclude": [],
+      "mustExclude": ["胃カメラ"],
+      "note": "検査の目的が言われている"
+    },
+    {
+      "id": "test-to-pharmacist",
+      "sender": "医師",
+      "recipient": "薬剤師",
+      "utterance": "来週CTを撮ります",
+      "mustInclude": [],
+      "mustExclude": ["CT"],
+      "note": "医療職には目的を聞かない"
+    },
+    {
+      "id": "result-high",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "肝臓の数値が高いですね",
+      "mustInclude": [["数値が高い", "数値"]],
+      "mustExclude": [],
+      "note": "結果の意味が言われていない"
+    },
+    {
+      "id": "treatment-chemo",
+      "sender": "医師",
+      "recipient": "患者",
+      "utterance": "手術の前に抗がん剤をやります",
+      "mustInclude": [["抗がん剤"]],
+      "mustExclude": [],
+      "note": "治療の目的・期間が言われていない"
     }
   ]
 }
