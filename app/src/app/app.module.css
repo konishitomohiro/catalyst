@@ -1698,3 +1698,29 @@
 .testSend:disabled {
   opacity: 0.4;
 }
+.amountAsk {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.fixNote,
+.fixNoteText {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0.125rem 0.5rem;
+  text-align: left;
+}
+.fixNote {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.fixNote .material-symbols-outlined {
+  font-size: 1rem;
+}

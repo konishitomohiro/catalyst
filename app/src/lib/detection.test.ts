@@ -95,4 +95,33 @@ describe("cleanReading", () => {
     );
     expect(r.ok && r.speaker).toBe("sender");
   });
+
+  it("聞き間違いの直しを受け取り、言葉は直した文から探す", () => {
+    const r = parseDetection(
+      JSON.stringify({
+        speaker: "sender",
+        corrected: "アゾセミド30mgを1日2錠処方します",
+        terms: [t("アゾセミド", "あぞせみど"), t("2錠", "にじょう")],
+      }),
+      "アゾセミド30mmを1日2畳処方します",
+    );
+    expect(r).toEqual({
+      ok: true,
+      speaker: "sender",
+      corrected: "アゾセミド30mgを1日2錠処方します",
+      terms: [{ term: "アゾセミド" }, { term: "2錠", reading: "にじょう" }],
+    });
+  });
+
+  it("数字を変える直しは受け取らず、元の文から探す", () => {
+    const r = parseDetection(
+      JSON.stringify({
+        speaker: "sender",
+        corrected: "10枚処方します",
+        terms: [t("10枚", "じゅうまい")],
+      }),
+      "20枚処方します",
+    );
+    expect(r).toEqual({ ok: true, speaker: "sender", terms: [] });
+  });
 });

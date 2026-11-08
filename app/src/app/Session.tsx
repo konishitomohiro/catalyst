@@ -9,6 +9,8 @@ import { initialSession, sessionReducer, UNDO_MS } from "@/lib/session";
 import { Furi, Term, Word } from "./Furi";
 import { Icon, ROLE_ICON } from "./Icon";
 import { Thinking } from "./Thinking";
+import { isAmount } from "@/lib/amount";
+import { squeezeSpaces } from "@/lib/transcriptFix";
 import { TestInput } from "./TestInput";
 import { TALK_SCRIPTS } from "@/lib/testInput";
 import { useTestInput } from "./TestFlag";
@@ -53,6 +55,19 @@ export function Session({
     speakersRef.current = next;
     setSpeakers(next);
   };
+  /** AIが聞き間違いを直した行の、元の聞き取り（直していない行はない） */
+  const [originals, setOriginals] = useState<(string | null)[]>([]);
+  const originalsRef = useRef<(string | null)[]>([]);
+  const setLineAt = (i: number, text: string, original: string | null) => {
+    const ls = [...linesRef.current];
+    ls[i] = text;
+    linesRef.current = ls;
+    setLines(ls);
+    const os = [...originalsRef.current];
+    os[i] = original;
+    originalsRef.current = os;
+    setOriginals(os);
+  };
   const listRef = useRef<HTMLOListElement>(null);
 
   async function detect(utterance: string, context: string, index: number) {
@@ -70,12 +85,16 @@ export function Session({
         index,
         data.speaker === "recipient" ? "recipient" : "sender",
       );
+      // 聞き間違いの直し（数字は変えていないことをサーバーのコードが確かめ済み）
+      const corrected =
+        typeof data.corrected === "string" ? data.corrected : null;
+      if (corrected) setLineAt(index, corrected, linesRef.current[index]);
       const terms = data.terms as DetectedTerm[];
       setFound((prev) => [
         ...prev,
         ...terms.map((t) => t.term).filter((t) => t && !prev.includes(t)),
       ]);
-      dispatch({ type: "detected", terms, quote: utterance });
+      dispatch({ type: "detected", terms, quote: corrected ?? utterance });
     } catch (e) {
       setAiError((e as Error).message);
     } finally {
@@ -84,7 +103,10 @@ export function Session({
   }
 
   /** 聞き取った発言（声でも、テスト用の用意した発言でも同じ道を通る） */
-  function onUtterance(text: string) {
+  function onUtterance(raw: string) {
+    // 音声入力が入れる、文字の間の空白を消す
+    const text = squeezeSpaces(raw);
+    if (!text) return;
     // API の上限に収める（直前の会話は、新しい側を残す）
     // 誰が話したかを添えて渡す（AIが流れから話した人を決めるため）
     const start = Math.max(0, linesRef.current.length - CONTEXT_LINES);
@@ -136,8 +158,18 @@ export function Session({
       })),
       lines,
       speakers,
+      originals,
     });
-  }, [id, startedAt, sender, recipient, state.list, lines, speakers]);
+  }, [
+    id,
+    startedAt,
+    sender,
+    recipient,
+    state.list,
+    lines,
+    speakers,
+    originals,
+  ]);
 
   // 「取り消す」は5秒だけ出す
   useEffect(() => {
@@ -223,6 +255,11 @@ export function Session({
                         <span className={styles.rowTerm}>
                           <Term term={item.term} reading={item.reading} />
                         </span>
+                        {isAmount(item.term) && (
+                          <span className={styles.amountAsk}>
+                            <Furi text="なんでその{量|りょう}を{出|だ}すのか" />
+                          </span>
+                        )}
                         {item.quote && (
                           <span className={styles.quote}>「{item.quote}」</span>
                         )}
@@ -262,13 +299,26 @@ export function Session({
                 >
                   <Marked text={t} terms={found} />
                 </button>
+                {originals[at] && (
+                  <button
+                    className={styles.fixNote}
+                    onClick={() => setLineAt(at, originals[at] ?? t, null)}
+                  >
+                    <Icon name="auto_fix" />
+                    <span>
+                      <Furi text="AIが{聞|き}き{間違|まちが}いを{直|なお}しました（{元|もと}：" />
+                      {originals[at]}）・
+                      <Furi text="{元|もと}に{戻|もど}す" />
+                    </span>
+                  </button>
+                )}
               </div>
             );
           })}
           {speech.interim && (
             <div className={styles.sayLeft}>
               <p className={`${styles.bubble} ${styles.interim}`}>
-                {speech.interim}
+                {squeezeSpaces(speech.interim)}
               </p>
             </div>
           )}
@@ -403,7 +453,12 @@ export function Session({
                     <span className={styles.questionTerm}>
                       <Term term={p.term} reading={p.reading} />
                     </span>
-                    」<Furi text="は{分|わ}かりますか？" />
+                    」
+                    {isAmount(p.term) ? (
+                      <Furi text="なんでその{量|りょう}を{出|だ}すのか、{分|わ}かりますか？" />
+                    ) : (
+                      <Furi text="は{分|わ}かりますか？" />
+                    )}
                   </p>
                   <div className={styles.answers}>
                     <button

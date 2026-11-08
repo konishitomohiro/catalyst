@@ -2,6 +2,7 @@
 // 形は例/Docs/3_仕組み.md「AIの出力の形」。
 import { z } from "zod";
 import { normalize } from "./transcriptCheck";
+import { acceptCorrection } from "./transcriptFix";
 
 /** 1回の発言から受け取る用語の最大数 */
 export const MAX_TERMS = 5;
@@ -14,6 +15,7 @@ export type Speaker = (typeof SPEAKERS)[number];
 
 export const detectionSchema = z.object({
   speaker: z.string().optional(),
+  corrected: z.string().optional(),
   terms: z.array(
     z.object({ term: z.string(), reading: z.string().optional() }),
   ),
@@ -28,6 +30,11 @@ export const detectionJsonSchema = {
       enum: ["sender", "recipient"],
       description:
         "今回の発言をした人。話し手なら sender、聞き手なら recipient",
+    },
+    corrected: {
+      type: "string",
+      description:
+        "音声入力の聞き間違い（単位・薬の名前・言葉）を直した発言。数字は変えない。直すところがなければ発言のまま",
     },
     terms: {
       type: "array",
@@ -48,7 +55,7 @@ export const detectionJsonSchema = {
       },
     },
   },
-  required: ["speaker", "terms"],
+  required: ["speaker", "corrected", "terms"],
 } as const;
 
 export type DetectedTerm = {
@@ -58,7 +65,13 @@ export type DetectedTerm = {
 };
 
 export type DetectionResult =
-  | { ok: true; speaker: Speaker; terms: DetectedTerm[] }
+  | {
+      ok: true;
+      speaker: Speaker;
+      terms: DetectedTerm[];
+      /** コードが受け取った直し。直さなかったときはない */
+      corrected?: string;
+    }
   | { ok: false; error: string };
 
 const KANJI = /[㐀-鿿々〆]/;
@@ -94,7 +107,10 @@ export function parseDetection(
   // 分からなければ話し手とみなす（言葉を見落とさない側に倒す）
   const speaker: Speaker =
     parsed.data.speaker === "recipient" ? "recipient" : "sender";
-  const text = normalize(utterance);
+  // 直しを受け取れたら、言葉は直した文の中から探す
+  const corrected = acceptCorrection(utterance, parsed.data.corrected);
+  const fixed = corrected ? { corrected } : {};
+  const text = normalize(corrected ?? utterance);
   const seen = new Set<string>();
   const terms: DetectedTerm[] = [];
   for (const t of parsed.data.terms) {
@@ -106,6 +122,7 @@ export function parseDetection(
     terms.push({ term, reading: cleanReading(term, t.reading) });
   }
   // 聞き手が話した発言は、聞き手が知っている言葉なので出さない（コードが決める。ルール4）
-  if (speaker === "recipient") return { ok: true, speaker, terms: [] };
-  return { ok: true, speaker, terms: terms.slice(0, MAX_TERMS) };
+  if (speaker === "recipient")
+    return { ok: true, speaker, terms: [], ...fixed };
+  return { ok: true, speaker, terms: terms.slice(0, MAX_TERMS), ...fixed };
 }

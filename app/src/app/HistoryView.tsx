@@ -15,6 +15,7 @@ import { Furi, Term, Word } from "./Furi";
 import { Icon } from "./Icon";
 import { useTestInput } from "./TestFlag";
 import { Thinking } from "./Thinking";
+import { isAmount } from "@/lib/amount";
 import { sampleHistory } from "@/lib/testInput";
 import styles from "./app.module.css";
 
@@ -78,6 +79,11 @@ export function HistoryView() {
                   >
                     <Term term={it.term} reading={it.reading} />
                   </span>
+                  {isAmount(it.term) && (
+                    <span className={styles.amountAsk}>
+                      <Furi text="なんでその{量|りょう}を{出|だ}すのか" />
+                    </span>
+                  )}
                   <span className={styles.srOnly}>
                     {it.checked ? "（聞けた）" : "（まだ聞いていない）"}
                   </span>
@@ -99,6 +105,11 @@ export function HistoryView() {
               <div key={i} className={right ? styles.sayRight : styles.sayLeft}>
                 <span className={styles.sayName}>{speakerRole(open, i)}</span>
                 <p className={styles.bubble}>{t}</p>
+                {open.originals?.[i] && (
+                  <span className={styles.fixNoteText}>
+                    AIが直しました（元：{open.originals[i]}）
+                  </span>
+                )}
               </div>
             );
           })}

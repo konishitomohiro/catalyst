@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     }
     return Response.json({
       speaker: result.speaker,
+      corrected: result.corrected,
       terms: result.terms,
     });
   } catch (e) {

@@ -23,6 +23,8 @@ export type HistoryRecord = {
   lines: string[];
   /** 行ごとの話した人（lines と同じ順）。古い記録にはない */
   speakers?: Speaker[];
+  /** AIが聞き間違いを直した行の、元の聞き取り（lines と同じ順。直していない行は null） */
+  originals?: (string | null)[];
   /** AIによる要約（「要約を作る」を押したときだけ） */
   summary?: Summary;
 };
